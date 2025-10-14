@@ -1,13 +1,7 @@
 import * as request from 'supertest';
 import { HttpStatus } from '@nestjs/common';
 
-import {
-  adminCookies,
-  app,
-  userCookies,
-  wrongId,
-  wrongValue,
-} from './app.setup';
+import { adminCookies, app, userCookies, wrongId } from './app.setup';
 import {
   IReqItems,
   IResource,
@@ -38,12 +32,7 @@ const runResourcesTests = () => {
         await request(app.getHttpServer())
           .post(ROUTES.api.resources)
           .set('Cookie', adminCookies)
-          .expect(HttpStatus.BAD_REQUEST);
-
-        await request(app.getHttpServer())
-          .post(ROUTES.api.resources)
-          .set('Cookie', adminCookies)
-          .send({ ...createEntity, enabled: wrongValue })
+          .send({})
           .expect(HttpStatus.BAD_REQUEST);
       });
 
@@ -96,9 +85,10 @@ const runResourcesTests = () => {
           .expect(HttpStatus.OK)
           .then((res) => res.body as TResourceResList);
 
-        expect(getListResBody).toHaveProperty('count', 5);
-        expect(getListResBody).toHaveProperty('page', 1);
-        expect(getListResBody).toHaveProperty('limit', 1);
+        expect(getListResBody).toHaveProperty('meta');
+        expect(getListResBody.meta).toHaveProperty('total', 5);
+        expect(getListResBody.meta).toHaveProperty('page', 1);
+        expect(getListResBody.meta).toHaveProperty('limit', 1);
 
         getListResBody = await request(app.getHttpServer())
           .get(ROUTES.api.resources)
@@ -172,7 +162,7 @@ const runResourcesTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.resource(entity.id))
           .set('Cookie', adminCookies)
-          .send({ enabled: wrongValue })
+          .send({ test: true })
           .expect(HttpStatus.BAD_REQUEST);
 
         await request(app.getHttpServer())

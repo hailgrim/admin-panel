@@ -1,4 +1,10 @@
-import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
+import {
+  ApiPropertyOptional,
+  IntersectionType,
+  PartialType,
+  PickType,
+} from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 import { ReqListDto } from 'src/database/dto/req-list.dto';
 import { UserDto } from './user.dto';
@@ -9,4 +15,10 @@ export class UserReqListDto
     ReqListDto<UserDto>,
     PartialType(PickType(UserDto, ['name', 'enabled', 'email', 'verified'])),
   )
-  implements TUserReqList {}
+  implements TUserReqList
+{
+  @ApiPropertyOptional({ type: String, example: 'example@mail.com' })
+  @IsOptional()
+  @IsString()
+  email?: string;
+}

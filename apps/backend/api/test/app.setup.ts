@@ -112,14 +112,15 @@ export const createApp = async () => {
       `https://${cfg.urls.panelReact}`,
       `https://${cfg.urls.panelVue}`,
     ],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,
       whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       errorHttpStatusCode: 400,
     }),
   );

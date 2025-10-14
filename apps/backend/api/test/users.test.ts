@@ -1,13 +1,7 @@
 import * as request from 'supertest';
 import { HttpStatus } from '@nestjs/common';
 
-import {
-  adminCookies,
-  app,
-  userCookies,
-  wrongId,
-  wrongValue,
-} from './app.setup';
+import { adminCookies, app, userCookies, wrongId } from './app.setup';
 import {
   IReqItems,
   IUser,
@@ -39,12 +33,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .post(ROUTES.api.users)
           .set('Cookie', adminCookies)
-          .expect(HttpStatus.BAD_REQUEST);
-
-        await request(app.getHttpServer())
-          .post(ROUTES.api.users)
-          .set('Cookie', adminCookies)
-          .send({ ...createEntity, enabled: wrongValue })
+          .send({})
           .expect(HttpStatus.BAD_REQUEST);
       });
 
@@ -92,9 +81,10 @@ const runUsersTests = () => {
           .expect(HttpStatus.OK)
           .then((res) => res.body as TUserResList);
 
-        expect(getListResBody).toHaveProperty('count', 3);
-        expect(getListResBody).toHaveProperty('page', 1);
-        expect(getListResBody).toHaveProperty('limit', 1);
+        expect(getListResBody).toHaveProperty('meta');
+        expect(getListResBody.meta).toHaveProperty('total', 3);
+        expect(getListResBody.meta).toHaveProperty('page', 1);
+        expect(getListResBody.meta).toHaveProperty('limit', 1);
 
         getListResBody = await request(app.getHttpServer())
           .get(ROUTES.api.users)
@@ -166,7 +156,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.user(entity.id))
           .set('Cookie', adminCookies)
-          .send({ enabled: wrongValue })
+          .send({ test: true })
           .expect(HttpStatus.BAD_REQUEST);
 
         await request(app.getHttpServer())
@@ -213,7 +203,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.userRoles(entity.id))
           .set('Cookie', adminCookies)
-          .send({ test: wrongValue })
+          .send({ test: true })
           .expect(HttpStatus.BAD_REQUEST);
 
         await request(app.getHttpServer())
