@@ -38,8 +38,6 @@ function updateRights(newRights: IRights) {
   }
 
   updatedRights.value = filteredRights
-
-  console.log(updatedRights.value)
 }
 </script>
 
