@@ -6,8 +6,10 @@ definePageMeta({
   title: 'newResource',
   description: 'newResource',
 })
+
+const router = useRouter()
 </script>
 
 <template>
-  <CreateResourceForm />
+  <ResourceCreate @create="router.push(ROUTES.ui.resource($event.id))" />
 </template>

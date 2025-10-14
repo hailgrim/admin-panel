@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import profileApi from '~/components/entities/profile/profileApi'
+
 const { locale } = useI18n()
 const mainStore = useMainStore()
-const sessions = ref<TExternalSession[] | null>(null)
+const sessions = ref<TSessionExternal[] | null>(null)
 const { data, error, execute, status } = profileApi.getSessions()
 
 watch(data, () => {

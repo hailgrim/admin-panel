@@ -87,7 +87,7 @@ services:
     expose:
       - ${POSTGRES_PORT}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter
     container_name: ${PROJECT_TAG}-postgres-exporter

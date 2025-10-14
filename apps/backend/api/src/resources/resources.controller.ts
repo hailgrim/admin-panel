@@ -15,19 +15,19 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
 import { ResourcesService } from './resources.service';
-import { CreateResourceDto } from './dto/create-resource.dto';
+import { ResourceCreateDto } from './dto/resource-create.dto';
 import { RolesGuard } from 'src/roles/roles.guard';
 import { ERights } from 'libs/constants';
 import { Roles } from 'src/roles/roles.decorator';
 import { JwtGuard } from 'src/auth/jwt.guard';
-import { GetResourcesDto } from './dto/get-resources.dto';
-import { UpdateResourceDto } from './dto/update-resource.dto';
-import { QueryItemsDto } from 'src/database/dto/query-items.dto';
-import { ExternalResourceDto } from './dto/external-resource.dto';
-import { ResourcesListDto } from './dto/resources-list.dto';
-import { ROUTES } from '@ap/shared/src/libs';
-import { getT } from '@ap/shared/src/locales';
-import { IGetListResponse, IResource } from '@ap/shared/src/types';
+import { ResourceReqListDto } from './dto/resource-req-list.dto';
+import { ResourceUpdateDto } from './dto/resource-update.dto';
+import { ReqItemsDto } from 'src/database/dto/req-items.dto';
+import { ResourceExternalDto } from './dto/resource-external.dto';
+import { ResourceResListDto } from './dto/resource-res-list.dto';
+import { ROUTES } from '@ap/shared/dist/libs';
+import { getT } from '@ap/shared/dist/locales';
+import { IResource, TResourceResList } from '@ap/shared/dist/types';
 
 const route = ROUTES.api.resources.substring(1);
 
@@ -37,40 +37,40 @@ export class ResourcesController {
   constructor(private resourceService: ResourcesService) {}
 
   @ApiOperation({ summary: getT().entityCreation })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalResourceDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: ResourceExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @Roles({ path: route, action: ERights.Creating })
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
   async create(
-    @Body() createResourceDto: CreateResourceDto,
+    @Body() resourceCreateDto: ResourceCreateDto,
   ): Promise<IResource> {
-    const resource = await this.resourceService.create(createResourceDto);
-    return plainToInstance(ExternalResourceDto, resource);
+    const resource = await this.resourceService.create(resourceCreateDto);
+    return plainToInstance(ResourceExternalDto, resource);
   }
 
   @ApiOperation({ summary: getT().getEntity })
-  @ApiResponse({ status: HttpStatus.OK, type: ExternalResourceDto })
+  @ApiResponse({ status: HttpStatus.OK, type: ResourceExternalDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get('/:id')
   async getOne(@Param('id') id: string): Promise<IResource> {
     const resource = await this.resourceService.getOne(id);
-    return plainToInstance(ExternalResourceDto, resource);
+    return plainToInstance(ResourceExternalDto, resource);
   }
 
   @ApiOperation({ summary: getT().getEntities })
-  @ApiResponse({ status: HttpStatus.OK, type: ResourcesListDto })
+  @ApiResponse({ status: HttpStatus.OK, type: ResourceResListDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get()
   async getList(
-    @Query() getResourcesDto: GetResourcesDto,
-  ): Promise<IGetListResponse<IResource>> {
-    const resources = await this.resourceService.getList(getResourcesDto);
-    return plainToInstance(ResourcesListDto, resources);
+    @Query() resourceReqListDto: ResourceReqListDto,
+  ): Promise<TResourceResList> {
+    const resources = await this.resourceService.getList(resourceReqListDto);
+    return plainToInstance(ResourceResListDto, resources);
   }
 
   @ApiOperation({ summary: getT().updateEntity })
@@ -81,9 +81,9 @@ export class ResourcesController {
   @Patch('/:id')
   async update(
     @Param('id') id: string,
-    @Body() updateResourceDto: UpdateResourceDto,
+    @Body() resourceUpdateDto: ResourceUpdateDto,
   ): Promise<void> {
-    await this.resourceService.update(id, updateResourceDto);
+    await this.resourceService.update(id, resourceUpdateDto);
   }
 
   @ApiOperation({ summary: getT().deleteEntity })
@@ -93,8 +93,8 @@ export class ResourcesController {
   @UseGuards(JwtGuard, RolesGuard)
   @Delete()
   async delete(
-    @Body() queryItemsDto: QueryItemsDto<IResource['id']>,
+    @Body() reqItemsDto: ReqItemsDto<IResource['id']>,
   ): Promise<void> {
-    await this.resourceService.delete(queryItemsDto.items);
+    await this.resourceService.delete(reqItemsDto.items);
   }
 }

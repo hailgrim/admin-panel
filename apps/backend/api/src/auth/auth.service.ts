@@ -18,14 +18,18 @@ import { IToken, ITokensPair } from './auth.types';
 import { QueueService } from 'src/queue/queue.service';
 import { createHash, generateCode, verifyHash } from 'libs/utils';
 import { cfg } from 'config/configuration';
-import { getT } from '@ap/shared/src/locales';
+import { getT } from '@ap/shared/dist/locales';
 import {
   IEmailCode,
+  IForgotPassword,
+  IResetPassword,
   ISession,
+  ISignIn,
   IUser,
-  TCreateResource,
+  IVerifyUser,
+  TResourceCreate,
   TSignUp,
-} from '@ap/shared/src/types';
+} from '@ap/shared/dist/types';
 
 @Injectable()
 export class AuthService {
@@ -40,24 +44,24 @@ export class AuthService {
 
   async checkDefaultData(): Promise<RoleEntity> {
     // Verify the existence of the Administrator Role
-    const adminRole = await this.rolesService.findOrCreateDefault(
-      'Administrator',
-      getT().defaultAdminRole,
-      true,
-    );
+    const adminRole = await this.rolesService.findOrCreateDefault({
+      name: 'Administrator',
+      description: getT().defaultAdminRole,
+      admin: true,
+    });
 
     // Verify the existence of the User Role
-    const userRole = await this.rolesService.findOrCreateDefault(
-      'User',
-      getT().defaultUserRole,
-    );
+    const userRole = await this.rolesService.findOrCreateDefault({
+      name: 'User',
+      description: getT().defaultUserRole,
+    });
 
     // Verify the existence of the Default Resources
     const defaultResources = await this.resourcesService
-      .getList(undefined, true)
+      .getList({ default: true })
       .then((result) => result.rows);
 
-    const missingResources: TCreateResource[] = [
+    const missingResources: TResourceCreate[] = [
       'profile',
       'users',
       'roles',
@@ -109,29 +113,28 @@ export class AuthService {
     return adminUsers === 0 ? adminRole : userRole;
   }
 
-  async signUp(signUpFields: TSignUp): Promise<IUser> {
+  async signUp(fields: TSignUp): Promise<IUser> {
     const defaultRole = await this.checkDefaultData();
-    return this.usersService.create({ ...signUpFields, enabled: true }, [
+    return this.usersService.create({ ...fields, enabled: true }, [
       defaultRole,
     ]);
   }
 
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(fields: IForgotPassword): Promise<void> {
     const code = generateCode();
-
-    await this.usersService.updateResetPasswordCode(email, code);
+    await this.usersService.updateResetPasswordCode(fields.email, code);
     this.queueService.sendEmail<IEmailCode>(
       { cmd: cfg.rmq.cmd.forgotPassword },
-      { email, code },
+      { email: fields.email, code },
     );
   }
 
-  async resetPassword(
-    email: string,
-    code: string,
-    password: string,
-  ): Promise<void> {
-    await this.usersService.updatePasswordWithCode(email, code, password);
+  async resetPassword(fields: IResetPassword): Promise<void> {
+    await this.usersService.updatePasswordWithCode(
+      fields.email,
+      fields.code,
+      fields.password,
+    );
   }
 
   async createTokens(
@@ -153,11 +156,14 @@ export class AuthService {
     };
   }
 
-  async validateUser(email: string, password: string): Promise<IUser | false> {
+  async validateUser(fields: ISignIn): Promise<IUser | false> {
     try {
-      const user: IUser = await this.usersService.getOneAuth(email);
+      const user: IUser = await this.usersService.getOneAuth(fields.username);
 
-      if (!user.password || !(await verifyHash(user.password, password))) {
+      if (
+        !user.password ||
+        !(await verifyHash(user.password, fields.password))
+      ) {
         return false;
       }
 
@@ -208,8 +214,8 @@ export class AuthService {
     return this.createTokens({ userId: user.id, sessionId, sign }, sessionTtl);
   }
 
-  async verifyUser(email: string, code: string): Promise<void> {
-    await this.usersService.updateVerificationStatus(email, code);
+  async verifyUser(fields: IVerifyUser): Promise<void> {
+    await this.usersService.updateVerificationStatus(fields.email, fields.code);
   }
 
   async signInGoogle(
@@ -236,8 +242,7 @@ export class AuthService {
 
     const defaultRole = await this.checkDefaultData();
     const user = await this.usersService.createByGoogle(
-      googleUser['id'],
-      googleUser['name'],
+      { googleId: googleUser['id'], name: googleUser['name'] },
       [defaultRole],
     );
 

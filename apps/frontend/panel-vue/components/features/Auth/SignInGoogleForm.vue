@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import authApi from '~/components/entities/auth/authApi'
+
 const { t, locale } = useI18n()
 const errorText = ref<string | null>(null)
 const hash = new URLSearchParams(location?.hash.slice(1) || '')

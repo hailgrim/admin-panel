@@ -1,17 +1,17 @@
-import { FC, ReactNode, useMemo } from 'react';
-import List from '@mui/material/List';
-import HomeIcon from '@mui/icons-material/Home';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import WidgetsIcon from '@mui/icons-material/Widgets';
-import GroupIcon from '@mui/icons-material/Group';
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
-import ApiIcon from '@mui/icons-material/Api';
+import { FC, ReactNode, useMemo } from "react";
+import List from "@mui/material/List";
+import HomeIcon from "@mui/icons-material/Home";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import WidgetsIcon from "@mui/icons-material/Widgets";
+import GroupIcon from "@mui/icons-material/Group";
+import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
+import ApiIcon from "@mui/icons-material/Api";
 
-import useTranslate from '@/shared/hooks/useTranslate';
-import useRights from '@/shared/hooks/useRights';
-import SideBarMenuItem from './SideBarMenuItem';
-import { ROUTES } from '@ap/shared/src/libs';
-import { IMenuItem } from '@ap/shared/src/types';
+import useTranslate from "@/shared/hooks/useTranslate";
+import useRights from "@/shared/hooks/useRights";
+import SideBarMenuItem from "./SideBarMenuItem";
+import { ROUTES } from "@ap/shared/dist/libs";
+import { IMenuItem } from "@ap/shared/dist/types";
 
 const SideBarMenu: FC = () => {
   const t = useTranslate();

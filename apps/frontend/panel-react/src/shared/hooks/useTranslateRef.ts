@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
-import useTranslate from './useTranslate';
+import useTranslate from "./useTranslate";
 
 const useTranslateRef = () => {
   const translate = useTranslate();

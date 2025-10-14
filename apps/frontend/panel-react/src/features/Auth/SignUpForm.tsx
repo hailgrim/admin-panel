@@ -1,19 +1,18 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { useRouter } from 'next/navigation';
+import { FC, useEffect, useMemo, useState } from "react";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useRouter } from "next/navigation";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormField from '@/shared/ui/Form/FormField';
-import FormPassword from '@/shared/ui/Form/FormPassword';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormLink from '@/shared/ui/Form/FormLink';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import CustomModal from '@/shared/ui/CustomModal/CustomModal';
-import SignUpSuccessForm from './SignUpSuccessForm';
-import authApi from '@/shared/api/auth/authApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormField from "@/shared/ui/Form/FormField";
+import FormPassword from "@/shared/ui/Form/FormPassword";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormLink from "@/shared/ui/Form/FormLink";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import CustomModal from "@/shared/ui/CustomModal/CustomModal";
+import SignUpSuccessForm from "./SignUpSuccessForm";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
 import {
   EMAIL_REGEX,
   getErrorText,
@@ -21,18 +20,19 @@ import {
   PASSWORD_REGEX,
   ROUTES,
   testString,
-} from '@ap/shared/src/libs';
+} from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const SignUpForm: FC = () => {
   const router = useRouter();
   const lRef = useLanguageRef();
   const tRef = useTranslateRef();
   const t = useTranslate();
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const nameIsValid = useMemo(() => testString(NAME_REGEX, name), [name]);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const emailIsValid = useMemo(() => testString(EMAIL_REGEX, email), [email]);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const passwordIsValid = useMemo(
     () => testString(PASSWORD_REGEX, password),
     [password]
@@ -94,7 +94,7 @@ const SignUpForm: FC = () => {
           value={name}
           onChange={(event) => setName(event.target.value)}
           helperText={t.nameValidation}
-          color={nameIsValid ? 'success' : 'error'}
+          color={nameIsValid ? "success" : "error"}
           error={!nameIsValid && name.length > 0}
           autoFocus
         />
@@ -106,7 +106,7 @@ const SignUpForm: FC = () => {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           helperText={t.emailValidation}
-          color={emailIsValid ? 'success' : 'error'}
+          color={emailIsValid ? "success" : "error"}
           error={!emailIsValid && email.length > 0}
         />
         <FormPassword
@@ -116,16 +116,16 @@ const SignUpForm: FC = () => {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           helperText={t.passwordValidation}
-          color={passwordIsValid ? 'success' : 'error'}
+          color={passwordIsValid ? "success" : "error"}
           error={!passwordIsValid && password.length > 0}
         />
         <FormButton type="submit" fullWidth loading={isLoading}>
           {t.signUp}
         </FormButton>
-        <FormLink href={ROUTES.ui.signIn} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.signIn} mui={{ align: "center" }}>
           {t.signInText}
         </FormLink>
-        <FormLink href={ROUTES.ui.forgotPassword} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.forgotPassword} mui={{ align: "center" }}>
           {t.forgotPasswordText}
         </FormLink>
       </FormBase>

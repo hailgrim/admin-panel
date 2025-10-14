@@ -1,24 +1,24 @@
-import { FC, useEffect, useState } from 'react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FC, useEffect, useState } from "react";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormField from '@/shared/ui/Form/FormField';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormLink from '@/shared/ui/Form/FormLink';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import CustomModal from '@/shared/ui/CustomModal/CustomModal';
-import ResetPasswordForm from './ResetPasswordForm';
-import authApi from '@/shared/api/auth/authApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { getErrorText, ROUTES } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormField from "@/shared/ui/Form/FormField";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormLink from "@/shared/ui/Form/FormLink";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import CustomModal from "@/shared/ui/CustomModal/CustomModal";
+import ResetPasswordForm from "./ResetPasswordForm";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const ForgotPasswordForm: FC = () => {
   const lRef = useLanguageRef();
   const tRef = useTranslateRef();
   const t = useTranslate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [resetModal, setResetModal] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const [forgotPassword, { isSuccess, error, isFetching }] =
@@ -74,10 +74,10 @@ const ForgotPasswordForm: FC = () => {
         <FormButton type="submit" fullWidth loading={isFetching}>
           {t.confirm}
         </FormButton>
-        <FormLink href={ROUTES.ui.signIn} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.signIn} mui={{ align: "center" }}>
           {t.signInText}
         </FormLink>
-        <FormLink href={ROUTES.ui.signUp} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.signUp} mui={{ align: "center" }}>
           {t.signUpText}
         </FormLink>
       </FormBase>

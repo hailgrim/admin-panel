@@ -1,22 +1,22 @@
-import { FC, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { FC, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import FormField from '@/shared/ui/Form/FormField';
-import FormPassword from '@/shared/ui/Form/FormPassword';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import authApi from '@/shared/api/auth/authApi';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import useTranslate from '@/shared/hooks/useTranslate';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import FormField from "@/shared/ui/Form/FormField";
+import FormPassword from "@/shared/ui/Form/FormPassword";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import useTranslate from "@/shared/hooks/useTranslate";
 import {
   getErrorText,
   PASSWORD_REGEX,
   ROUTES,
   testString,
-} from '@ap/shared/src/libs';
+} from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const ResetPasswordForm: FC<{
   email: string;
@@ -29,8 +29,8 @@ const ResetPasswordForm: FC<{
   const [resetPassword, { isSuccess, error, isLoading }] =
     authApi.useLazyResetPasswordQuery();
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const passwordIsValid = useMemo(
     () => testString(PASSWORD_REGEX, password),
     [password]
@@ -90,7 +90,7 @@ const ResetPasswordForm: FC<{
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         helperText={t.passwordValidation}
-        color={passwordIsValid ? 'success' : 'error'}
+        color={passwordIsValid ? "success" : "error"}
         error={!passwordIsValid && password.length > 0}
       />
       <FormButton type="submit" fullWidth loading={isLoading || isSuccess}>

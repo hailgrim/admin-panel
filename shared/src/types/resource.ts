@@ -1,4 +1,5 @@
-import type { IRights } from './database';
+import { IReqList, IResList } from "./api";
+import type { IRights } from "./database";
 
 export interface IResource {
   id: string;
@@ -10,16 +11,17 @@ export interface IResource {
   rights?: IRights[];
 }
 
-export type TCreateResource = Pick<
-  IResource,
-  'name' | 'path' | 'description' | 'enabled'
-> &
-  Partial<Pick<IResource, 'default'>>;
+export type TResourceCreate = Required<Pick<IResource, "name" | "path">> &
+  Partial<Pick<IResource, "enabled" | "description">>;
 
-export type TGetResources = Partial<
-  Pick<IResource, 'name' | 'path' | 'description' | 'enabled'>
+export type TResourceReqListParams = Partial<
+  Pick<IResource, "name" | "path" | "enabled" | "default">
 >;
 
-export type TUpdateResource = Partial<
-  Pick<IResource, 'name' | 'path' | 'description' | 'enabled'>
+export type TResourceReqList = IReqList<IResource> & TResourceReqListParams;
+
+export type TResourceResList = IResList<IResource>;
+
+export type TResourceUpdate = Partial<
+  Pick<IResource, "name" | "path" | "description" | "enabled">
 >;

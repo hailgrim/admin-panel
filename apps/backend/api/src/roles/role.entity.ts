@@ -8,7 +8,8 @@ import {
 
 import { UserEntity } from '../users/user.entity';
 import { RightsEntity } from 'src/database/rights.entity';
-import { IRole } from '@ap/shared/src/types';
+import { IRole } from '@ap/shared/dist/types';
+import { EmptyStringToNull } from 'src/database/database.utils';
 
 @Entity('roles')
 export class RoleEntity implements IRole {
@@ -18,7 +19,12 @@ export class RoleEntity implements IRole {
   @Column({ type: 'varchar', length: 100, unique: true })
   name: string;
 
-  @Column({ type: 'varchar', length: 1000, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 1000,
+    nullable: true,
+    transformer: EmptyStringToNull,
+  })
   description?: string | null;
 
   @Column({ type: 'boolean', default: false })

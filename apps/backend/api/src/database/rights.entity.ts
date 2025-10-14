@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 import { RoleEntity } from 'src/roles/role.entity';
 import { ResourceEntity } from 'src/resources/resource.entity';
-import { IResource, IRights, IRole } from '@ap/shared/src/types';
+import { IResource, IRights, IRole } from '@ap/shared/dist/types';
 
 @Entity('rights')
 export class RightsEntity implements IRights {

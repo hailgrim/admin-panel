@@ -5,12 +5,16 @@ import { ResourcesController } from './resources.controller';
 import { ResourcesService } from './resources.service';
 import { UsersModule } from 'src/users/users.module';
 import { ResourceEntity } from './resource.entity';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ResourceEntity]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([ResourceEntity]),
+    DatabaseModule,
+    UsersModule,
+  ],
   controllers: [ResourcesController],
-  providers: [ResourcesService, DatabaseService],
+  providers: [ResourcesService],
   exports: [ResourcesService],
 })
 export class ResourcesModule {}

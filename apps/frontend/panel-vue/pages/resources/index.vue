@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import resourcesApi from '~/components/entities/resource/resourcesApi'
+
 definePageMeta({
   middleware: ['auth'],
   layout: 'panel',
@@ -13,30 +15,28 @@ const reqPage = ref(Number(route.query.reqPage) || 1)
 const reqLimit = ref(Number(route.query.reqLimit) || 25)
 const { data, execute } = resourcesApi.getList({ reqPage, reqLimit, reqCount: true })
 
-if (import.meta.server) {
-  await execute()
+function updateHandler(newMeta: IResListMeta<IResource>) {
+  const newParams = createSearchParams({
+    data: resListMetaToReq<IResource>(newMeta),
+    exclude: ['total'],
+    searchParams: route.fullPath.split('?')[1],
+  })
+  router.push('?' + newParams.toString())
 }
 
-watch(
-  reqPage,
-  () => {
-    router.push({ query: { ...route.query, reqPage: reqPage.value } })
-  },
-)
+await execute()
 
-watch(
-  reqLimit,
-  () => {
-    router.push({ query: { ...route.query, reqLimit: reqLimit.value } })
-  },
-)
+if (data.value === null) {
+  showError({
+    statusCode: 404,
+  })
+}
 </script>
 
 <template>
-  <ResourcesList
-    v-model:page="reqPage"
-    v-model:limit="reqLimit"
-    :count="data?.count"
-    :rows="data?.rows"
+  <ResourceList
+    :initial-rows="data?.rows"
+    :initial-meta="data?.meta"
+    @meta-update="updateHandler($event)"
   />
 </template>

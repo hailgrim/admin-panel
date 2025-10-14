@@ -3,16 +3,16 @@
 import { FC } from 'react';
 import Typography from '@mui/material/Typography';
 
-import PanelLayout from '../PanelLayout';
-import UpdateProfileForm from '@/features/Profile/UpdateProfileForm';
-import { IPage } from '../types';
+import PanelLayout from './PanelLayout';
+import UpdateProfileForm from '@/features/profile/UpdateProfileForm';
+import { TPage } from '../types';
 import useTranslate from '@/shared/hooks/useTranslate';
-import ProfileSessions from '@/features/Profile/ProfileSessions';
-import ProfileRoles from '@/features/Profile/ProfileRoles';
-import UpdatePasswordForm from '@/features/Profile/UpdatePasswordForm';
-import ChangeEmailRequestForm from '@/features/Profile/ChangeEmailRequestForm';
+import ProfileSessions from '@/features/profile/ProfileSessions';
+import ProfileRoles from '@/features/profile/ProfileRoles';
+import UpdatePasswordForm from '@/features/profile/UpdatePasswordForm';
+import ChangeEmailRequestForm from '@/features/profile/ChangeEmailRequestForm';
 
-const ProfilePage: FC<IPage> = ({ h1 }) => {
+const ProfilePage: FC<TPage> = ({ h1 }) => {
   const t = useTranslate();
 
   return (

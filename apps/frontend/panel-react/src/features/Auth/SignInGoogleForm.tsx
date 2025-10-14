@@ -1,15 +1,15 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { Typography } from '@mui/material';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { Typography } from "@mui/material";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import authApi from '@/shared/api/auth/authApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { IUser, IWindowMessage } from '@ap/shared/src/types';
-import { getErrorText, ROUTES } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { IUser, IWindowMessage } from "@ap/shared/dist/types";
+import { getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const SignInGoogleForm: FC = () => {
   const lRef = useLanguageRef();
@@ -17,7 +17,7 @@ const SignInGoogleForm: FC = () => {
   const t = useTranslate();
   const hash = useRef(
     new URLSearchParams(
-      typeof location === 'object' ? location.hash.slice(1) : ''
+      typeof location === "object" ? location.hash.slice(1) : ""
     )
   );
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const SignInGoogleForm: FC = () => {
         return;
       }
 
-      if (event.data.payload === hash.current.get('state')) {
+      if (event.data.payload === hash.current.get("state")) {
         const message: IWindowMessage<IUser> = {
           type: ROUTES.ui.signInGoogle,
           payload: data,
@@ -44,15 +44,15 @@ const SignInGoogleForm: FC = () => {
   );
 
   useEffect(() => {
-    window.addEventListener('message', messageHandler);
+    window.addEventListener("message", messageHandler);
     return () => {
-      window.removeEventListener('message', messageHandler);
+      window.removeEventListener("message", messageHandler);
     };
   }, [messageHandler]);
 
   useEffect(() => {
-    if (hash.current.has('access_token')) {
-      signInGoogle({ googleAccessToken: hash.current.get('access_token')! });
+    if (hash.current.has("access_token")) {
+      signInGoogle({ googleAccessToken: hash.current.get("access_token")! });
     } else {
       setErrorText(tRef.current.error);
     }

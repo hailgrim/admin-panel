@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn } from 'typeorm';
 
 import { USERS_ROLES_TABLE } from 'libs/constants';
-import { IRole, IUser, IUsersRoles } from '@ap/shared/src/types';
+import { IRole, IUser, IUsersRoles } from '@ap/shared/dist/types';
 
 @Entity(USERS_ROLES_TABLE)
 export class UsersRolesEntity implements IUsersRoles {

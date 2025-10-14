@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import rolesApi from '~/components/entities/role/rolesApi'
+import usersApi from '~/components/entities/user/usersApi'
+
 definePageMeta({
   middleware: ['auth'],
   layout: 'panel',
@@ -8,8 +11,11 @@ definePageMeta({
 })
 
 const route = useRoute()
+const router = useRouter()
 const id = String(route.params.id)
 const { data: ugoData, execute: ugoExecute } = usersApi.getOne(id)
+const { data: rglData, execute: rglExecute } = rolesApi.getList()
+
 await ugoExecute()
 
 if (ugoData.value === null) {
@@ -18,14 +24,14 @@ if (ugoData.value === null) {
   })
 }
 
-const { data: rglData, execute: rglExecute } = rolesApi.getList()
 await rglExecute()
 </script>
 
 <template>
-  <UpdateUserForm
+  <UserUpdate
     v-if="ugoData"
-    :user="ugoData"
+    :data="ugoData"
+    @delete="router.push(ROUTES.ui.users)"
   />
   <v-card-title
     v-if="ugoData && rglData"
@@ -33,9 +39,9 @@ await rglExecute()
   >
     {{ $t('roles') }}
   </v-card-title>
-  <UpdateUserRolesForm
+  <UserRolesUpdate
     v-if="ugoData && rglData"
-    :roles="rglData.rows"
     :user="ugoData"
+    :roles="rglData.rows"
   />
 </template>

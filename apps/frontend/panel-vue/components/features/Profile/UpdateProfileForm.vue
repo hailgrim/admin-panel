@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from 'vuetify'
 
+import profileApi from '~/components/entities/profile/profileApi'
+
 const { t, locale } = useI18n()
 const rights = useRights(ROUTES.api.profile)
 const mainStore = useMainStore()
-const newData = ref({ ...mainStore.profile })
-const updatedValues = ref<TUpdateUser>({})
+const newData = ref(mainStore.profile)
+const updatedValues = ref<TUserUpdate>({})
 const nameIsValid = (value = '') =>
   testString(NAME_REGEX, value) || t('nameValidation')
 const { status, error, execute } = profileApi.updateProfile(updatedValues)
@@ -17,7 +19,7 @@ async function submitHandler(event: SubmitEventPromise) {
     return
   }
 
-  if (mainStore.profile) {
+  if (mainStore.profile && newData.value) {
     updatedValues.value = getUpdatedValues<IUser>(
       mainStore.profile,
       newData.value,
@@ -65,11 +67,11 @@ watch(status, () => {
     />
     <FormField
       :label="$t('name')"
-      :model-value="newData.name"
+      :model-value="newData?.name ?? ''"
       name="name"
       required
       :rules="[nameIsValid]"
-      @update:model-value="newData && (newData = { ...newData, name: $event })"
+      @update:model-value="newData && (newData = { ...newData, name: $event ?? '' })"
     />
     <FormButton
       color="success"

@@ -1,5 +1,6 @@
-import type { IRole } from './role';
-import type { WithoutNulls } from './utils';
+import { IReqList, IResList } from "./api";
+import type { IRole } from "./role";
+import type { WithoutNulls } from "./utils";
 
 export interface IUser {
   id: string;
@@ -16,15 +17,21 @@ export interface IUser {
   roles?: IRole[];
 }
 
-export type TCreateUser = WithoutNulls<
-  Required<Pick<IUser, 'email' | 'password' | 'name' | 'enabled'>>
+export type TUserCreate = WithoutNulls<
+  Required<Pick<IUser, "email" | "password" | "name">> &
+    Partial<Pick<IUser, "enabled">>
 >;
 
-export type TCreateGoogleUser = Pick<
-  IUser,
-  'googleId' | 'name' | 'verified' | 'enabled'
+export type TUserCreateGoogle = WithoutNulls<
+  Required<Pick<IUser, "googleId" | "name">> & Partial<Pick<IUser, "enabled">>
 >;
 
-export type TGetUsers = Partial<Pick<IUser, 'email' | 'name' | 'enabled'>>;
+export type TUserReqListParams = Partial<
+  Pick<IUser, "email" | "name" | "enabled" | "verified">
+>;
 
-export type TUpdateUser = Partial<Omit<IUser, 'id' | 'roles'>>;
+export type TUserReqList = IReqList<IUser> & TUserReqListParams;
+
+export type TUserResList = IResList<IUser>;
+
+export type TUserUpdate = Partial<Pick<IUser, "name" | "enabled">>;

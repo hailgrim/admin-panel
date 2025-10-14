@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { UAParser } from 'ua-parser-js'
 
-const { session } = defineProps<{ session: TExternalSession }>()
+import authApi from '~/components/entities/auth/authApi'
+import profileApi from '~/components/entities/profile/profileApi'
+
+const props = defineProps<{
+  session: TSessionExternal
+}>()
 const emit = defineEmits<{
   delete: []
 }>()
@@ -10,13 +15,13 @@ const { t, locale } = useI18n()
 const router = useRouter()
 const rights = useRights(ROUTES.api.profile)
 const mainStore = useMainStore()
-const userAgent = new UAParser(session.userAgent).getResult()
-const updatedAt = getDateString(session.updatedAt)
-const { status: dsStatus, error: dsError, execute: dsExecute } = profileApi.deleteSessions({ items: [session.id] })
+const userAgent = new UAParser(props.session.userAgent).getResult()
+const updatedAt = getDateString(props.session.updatedAt)
+const { status: dsStatus, error: dsError, execute: dsExecute } = profileApi.deleteSessions({ items: [props.session.id] })
 const { status: soStatus, error: soError, execute: soExecute } = authApi.signOut()
 
 async function submitHandler() {
-  if (session.current) {
+  if (props.session.current) {
     soExecute()
   }
   else {

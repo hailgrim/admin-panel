@@ -6,9 +6,9 @@ import {
   NAME_REGEX,
   PASSWORD_REGEX,
   testString,
-} from '@ap/shared/src/libs';
-import { getT, TLangList } from '@ap/shared/src/locales';
-import { IMenuItem } from '@ap/shared/src/types';
+} from '@ap/shared/dist/libs';
+import { getT, TLangList } from '@ap/shared/dist/locales';
+import { IMenuItem } from '@ap/shared/dist/types';
 
 describe('checkActiveLink function', () => {
   test('checkActiveLink should return true if link found in the navigation tree', () => {

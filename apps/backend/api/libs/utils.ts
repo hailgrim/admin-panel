@@ -50,3 +50,10 @@ export const createCookieOptions = (
 export const getIP = (req: FastifyRequest): string => {
   return req.ips?.length ? req.ips[0] : req.ip;
 };
+
+/**
+ * @param {unknown} value Any data
+ * @returns {boolean} Boolean value
+ */
+export const toBoolean = (value: unknown): boolean =>
+  value === 'false' ? false : Boolean(value);

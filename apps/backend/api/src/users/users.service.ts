@@ -12,6 +12,7 @@ import {
   DeleteResult,
   FindOneOptions,
   FindOptionsWhere,
+  ILike,
   In,
   Repository,
   UpdateResult,
@@ -23,15 +24,17 @@ import { DatabaseService } from 'src/database/database.service';
 import { createHash } from 'libs/utils';
 import { RoleEntity } from 'src/roles/role.entity';
 import { UsersRolesEntity } from 'src/database/users-roles.entity';
-import { TDatabaseGetList } from 'src/database/database.types';
 import {
-  IGetListResponse,
   IUsersRoles,
-  TCreateUser,
-  TGetListRequest,
-  TGetUsers,
-  TUpdateUser,
-} from '@ap/shared/src/types';
+  TUserCreate,
+  TUserUpdate,
+  TUserReqList,
+  TUserResList,
+  IRole,
+  IUser,
+  TUserCreateGoogle,
+} from '@ap/shared/dist/types';
+import { getField } from '@ap/shared/dist/libs';
 
 @Injectable()
 export class UsersService {
@@ -43,47 +46,33 @@ export class UsersService {
     private cacheService: CacheService,
   ) {}
 
-  async create(fields: TCreateUser, roles?: RoleEntity[]): Promise<UserEntity> {
-    let user: UserEntity | null;
-
+  async create(fields: TUserCreate, roles?: IRole[]): Promise<IUser> {
     try {
-      user = await this.usersRepository.findOne({
-        where: { email: fields.email },
-      });
-    } catch (error) {
-      Logger.error(error);
-      throw new InternalServerErrorException();
-    }
-
-    if (user) {
-      throw new ConflictException();
-    }
-
-    try {
-      user = this.usersRepository.create({
+      const user = this.usersRepository.create({
         ...fields,
         password: await createHash(fields.password),
         roles,
       });
-      await this.usersRepository.save(user);
+      return await this.usersRepository.save(user);
     } catch (error) {
+      if (getField(error, 'code') === '23505') {
+        throw new ConflictException();
+      }
+
       Logger.error(error);
       throw new InternalServerErrorException();
     }
-
-    return user;
   }
 
   async createByGoogle(
-    googleId: string,
-    name: string,
-    roles?: RoleEntity[],
-  ): Promise<UserEntity> {
+    fields: TUserCreateGoogle,
+    roles?: IRole[],
+  ): Promise<IUser> {
     let user: UserEntity | null;
 
     try {
       user = await this.usersRepository.findOne({
-        where: { googleId },
+        where: { googleId: fields.googleId },
         relations: { roles: { rights: { resource: true } } },
       });
     } catch (error) {
@@ -94,8 +83,8 @@ export class UsersService {
     if (!user) {
       try {
         user = this.usersRepository.create({
-          googleId,
-          name,
+          googleId: fields.googleId,
+          name: fields.name,
           enabled: true,
           verified: true,
           roles,
@@ -110,9 +99,7 @@ export class UsersService {
     return user;
   }
 
-  private async getOne(
-    options: FindOneOptions<UserEntity>,
-  ): Promise<UserEntity> {
+  private async getOne(options: FindOneOptions<UserEntity>): Promise<IUser> {
     let user: UserEntity | null;
 
     try {
@@ -129,80 +116,81 @@ export class UsersService {
     return user;
   }
 
-  getOneAuth(email: string): Promise<UserEntity> {
+  getOneAuth(email: string): Promise<IUser> {
     return this.getOne({
       where: { email },
       relations: { roles: { rights: { resource: true } } },
     });
   }
 
-  getOneProfile(id: string): Promise<UserEntity> {
+  getOneProfile(id: string): Promise<IUser> {
     return this.getOne({
       where: { id },
       relations: { roles: { rights: { resource: true } } },
     });
   }
 
-  getOnePublic(id: string): Promise<UserEntity> {
+  getOnePublic(id: string): Promise<IUser> {
     return this.getOne({
       where: { id },
       relations: { roles: true },
     });
   }
 
-  getOneFlat(id: string): Promise<UserEntity> {
+  getOneFlat(id: string): Promise<IUser> {
     return this.getOne({ where: { id } });
   }
 
-  prepareGetListOptions(
-    fields?: TGetListRequest<TGetUsers>,
-  ): TDatabaseGetList<UserEntity> {
-    const options = this.databaseService.preparePaginationOptions<
-      UserEntity,
-      TGetUsers
-    >(fields);
-
+  buildGetListOptions(fields?: TUserReqList) {
+    const { options, meta } =
+      this.databaseService.buildGetListOptions<UserEntity>(fields);
+    options.relations = { roles: true };
     options.where = {};
+    meta.filters = {};
 
-    if (fields?.email !== undefined) {
-      options.where.email = this.databaseService.iLike(`%${fields.email}%`);
+    if (fields?.reqSortField && fields.reqSortOrder) {
+      options.order = { [fields.reqSortField]: fields.reqSortOrder };
+      meta.sort = { field: fields.reqSortField, order: fields.reqSortOrder };
     }
 
-    if (fields?.name !== undefined) {
-      options.where.name = this.databaseService.iLike(`%${fields.name}%`);
+    if (fields?.name) {
+      options.where.name = ILike(`%${fields.name}%`);
+      meta.filters.name = fields.name;
     }
 
     if (fields?.enabled !== undefined) {
       options.where.enabled = fields.enabled;
+      meta.filters.enabled = fields.enabled;
     }
 
-    return options;
+    if (fields?.email) {
+      options.where.email = ILike(`%${fields.email}%`);
+      meta.filters.email = fields.email;
+    }
+
+    if (fields?.verified !== undefined) {
+      options.where.verified = fields.verified;
+      meta.filters.verified = fields.verified;
+    }
+
+    return { options, meta };
   }
 
-  async getList(
-    fields?: TGetListRequest<TGetUsers>,
-  ): Promise<IGetListResponse<UserEntity>> {
-    const options = {
-      ...this.prepareGetListOptions(fields),
-      relations: { roles: true },
-    };
+  async getList(fields?: TUserReqList): Promise<TUserResList> {
+    const { options, meta } = this.buildGetListOptions(fields);
+    const result: TUserResList = { rows: [] };
+    result.meta = meta;
 
     try {
       if (fields?.reqCount) {
-        const result = await this.usersRepository.findAndCount(options);
-        return {
-          rows: result[0],
-          page: options.skip / options.take + 1,
-          limit: options.take,
-          count: result[1],
-        };
+        const query = await this.usersRepository.findAndCount(options);
+        result.rows.push(...query[0]);
+        result.meta.total = query[1];
       } else {
-        return {
-          rows: await this.usersRepository.find(options),
-          page: options.skip / options.take + 1,
-          limit: options.take,
-        };
+        result.rows.push(...(await this.usersRepository.find(options)));
       }
+
+      return result;
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException();
@@ -223,7 +211,7 @@ export class UsersService {
   }
 
   private async update(
-    fields: TUpdateUser,
+    fields: Partial<IUser>,
     options: FindOptionsWhere<UserEntity>,
   ): Promise<void> {
     let result: UpdateResult;
@@ -244,7 +232,13 @@ export class UsersService {
     }
   }
 
-  async updateFields(id: string, fields: TUpdateUser): Promise<void> {
+  async updateFields(id: string, fields: TUserUpdate): Promise<void> {
+    const user = await this.getOnePublic(id);
+
+    if (user.roles?.some((role) => role.admin) && fields.enabled === false) {
+      delete fields.enabled;
+    }
+
     await this.update(fields, { id });
   }
 
@@ -398,7 +392,7 @@ export class UsersService {
     if (user.roles) {
       newUsersRoles.push(
         ...user.roles
-          .filter((role) => role.admin === true)
+          .filter((role) => role.admin)
           .map(
             (role) => ({ roleId: role.id, userId: id }) satisfies IUsersRoles,
           ),
@@ -423,8 +417,16 @@ export class UsersService {
     let result: DeleteResult;
 
     try {
+      const users = await this.usersRepository.find({
+        where: { id: In(ids) },
+        relations: { roles: true },
+      });
       result = await this.usersRepository.delete({
-        id: In(ids),
+        id: In(
+          users
+            .filter((user) => !user.roles?.some((role) => role.admin))
+            .map((user) => user.id),
+        ),
       });
     } catch (error) {
       Logger.error(error);

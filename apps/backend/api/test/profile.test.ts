@@ -10,17 +10,17 @@ import {
   userCookies,
   wrongValue,
 } from './app.setup';
-import { ROUTES } from '@ap/shared/src/libs';
+import { ROUTES } from '@ap/shared/dist/libs';
 import {
   IChangeEmailConfirm,
   IChangeEmailRequest,
-  IQueryItems,
+  IReqItems,
   ISignIn,
   IUpdatePassword,
   IUser,
-  TExternalSession,
-  TUpdateUser,
-} from '@ap/shared/src/types';
+  TSessionExternal,
+  TUserUpdate,
+} from '@ap/shared/dist/types';
 
 const runProfileTests = () => {
   describe('Profile', () => {
@@ -78,7 +78,7 @@ const runProfileTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.profile)
           .set('Cookie', adminCookies)
-          .send({ name: wrongValue } satisfies TUpdateUser)
+          .send({ name: wrongValue } satisfies TUserUpdate)
           .expect(HttpStatus.BAD_REQUEST);
       });
 
@@ -86,7 +86,7 @@ const runProfileTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.profile)
           .set('Cookie', adminCookies)
-          .send({ name: admin.name } satisfies TUpdateUser)
+          .send({ name: admin.name } satisfies TUserUpdate)
           .expect(HttpStatus.NO_CONTENT);
       });
 
@@ -94,7 +94,7 @@ const runProfileTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.profile)
           .set('Cookie', userCookies)
-          .send({ name: user.name } satisfies TUpdateUser)
+          .send({ name: user.name } satisfies TUserUpdate)
           .expect(HttpStatus.NO_CONTENT);
       });
     });
@@ -234,8 +234,8 @@ const runProfileTests = () => {
       });
     });
 
-    let adminSession: TExternalSession;
-    let userSession: TExternalSession;
+    let adminSession: TSessionExternal;
+    let userSession: TSessionExternal;
 
     describe('Get Sessions', () => {
       it('Incorrect', async () => {
@@ -249,7 +249,7 @@ const runProfileTests = () => {
           .get(ROUTES.api.sessions)
           .set('Cookie', adminCookies)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as TExternalSession[]);
+          .then((res) => res.body as TSessionExternal[]);
 
         expect(getSessionsResBody[0]).toHaveProperty('id');
         expect(getSessionsResBody[0]).toHaveProperty('current', true);
@@ -263,7 +263,7 @@ const runProfileTests = () => {
           .get(ROUTES.api.sessions)
           .set('Cookie', userCookies)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as TExternalSession[]);
+          .then((res) => res.body as TSessionExternal[]);
 
         expect(getSessionsResBody[0]).toHaveProperty('id');
         expect(getSessionsResBody[0]).toHaveProperty('current', true);
@@ -290,8 +290,8 @@ const runProfileTests = () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.sessions)
           .set('Cookie', adminCookies)
-          .send({ items: [adminSession.id] } satisfies IQueryItems<
-            TExternalSession['id']
+          .send({ items: [adminSession.id] } satisfies IReqItems<
+            TSessionExternal['id']
           >)
           .expect(HttpStatus.NO_CONTENT);
 
@@ -318,8 +318,8 @@ const runProfileTests = () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.sessions)
           .set('Cookie', userCookies)
-          .send({ items: [userSession.id] } satisfies IQueryItems<
-            TExternalSession['id']
+          .send({ items: [userSession.id] } satisfies IReqItems<
+            TSessionExternal['id']
           >)
           .expect(HttpStatus.NO_CONTENT);
 

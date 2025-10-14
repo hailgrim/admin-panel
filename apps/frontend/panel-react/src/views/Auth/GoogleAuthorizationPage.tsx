@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { FC } from 'react';
+import { FC } from "react";
 
-import AuthLayout from '@/views/AuthLayout';
-import { IPage } from '../types';
-import SignInGoogleForm from '@/features/Auth/SignInGoogleForm';
+import { TPage } from "../types";
+import SignInGoogleForm from "@/features/auth/SignInGoogleForm";
+import AuthLayout from "./AuthLayout";
 
-const GoogleAuthorizationPage: FC<IPage> = ({ h1 }) => {
+const GoogleAuthorizationPage: FC<TPage> = ({ h1 }) => {
   return (
     <AuthLayout h1={h1}>
       <SignInGoogleForm />

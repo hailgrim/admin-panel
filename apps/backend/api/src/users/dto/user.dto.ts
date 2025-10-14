@@ -7,11 +7,12 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
-import { ExternalRoleDto } from 'src/roles/dto/external-role.dto';
-import { IUser } from '@ap/shared/src/types';
-import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from '@ap/shared/src/libs';
+import { RoleExternalDto } from 'src/roles/dto/role-external.dto';
+import { IUser } from '@ap/shared/dist/types';
+import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from '@ap/shared/dist/libs';
+import { toBoolean } from 'libs/utils';
 
 export class UserDto implements IUser {
   @ApiProperty({
@@ -38,32 +39,34 @@ export class UserDto implements IUser {
   googleId: string;
 
   @ApiProperty({ type: Boolean, example: true })
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   enabled: boolean;
 
   @ApiProperty({ type: Boolean, example: true })
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   verified: boolean;
 
   @ApiProperty({ type: String, example: '1234' })
   @IsString()
-  verificationCode: string | null;
+  verificationCode: string;
 
   @ApiProperty({ type: String, example: '1234' })
   @IsString()
-  resetPasswordCode: string | null;
+  resetPasswordCode: string;
 
   @ApiProperty({ type: String, example: '1234' })
   @IsString()
-  changeEmailCode: string | null;
+  changeEmailCode: string;
 
   @ApiProperty({ type: String, example: '1234' })
   @IsString()
-  temporaryEmail: string | null;
+  temporaryEmail: string;
 
-  @ApiProperty({ type: [ExternalRoleDto] })
+  @ApiProperty({ type: [RoleExternalDto] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ExternalRoleDto)
-  roles: ExternalRoleDto[];
+  @Type(() => RoleExternalDto)
+  roles: RoleExternalDto[];
 }

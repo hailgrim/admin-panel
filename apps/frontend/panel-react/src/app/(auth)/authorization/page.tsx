@@ -1,8 +1,8 @@
 import { Metadata } from 'next/types';
 import { FC } from 'react';
 
-import AuthorizationPage from '@/views/Auth/AuthorizationPage';
-import { getT } from '@ap/shared/src/locales';
+import AuthorizationPage from '@/views/auth/AuthorizationPage';
+import { getT } from '@ap/shared/dist/locales';
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();

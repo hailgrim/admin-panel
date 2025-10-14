@@ -1,23 +1,24 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { DeleteResult, In, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, ILike, In, Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { ResourceEntity } from './resource.entity';
 import { DatabaseService } from 'src/database/database.service';
-import { TDatabaseGetList } from 'src/database/database.types';
 import {
-  IGetListResponse,
-  TCreateResource,
-  TGetListRequest,
-  TGetResources,
-  TUpdateResource,
-} from '@ap/shared/src/types';
+  TResourceCreate,
+  TResourceUpdate,
+  TResourceReqList,
+  TResourceResList,
+  IResource,
+} from '@ap/shared/dist/types';
+import { getField } from '@ap/shared/dist/libs';
 
 @Injectable()
 export class ResourcesService {
@@ -27,31 +28,33 @@ export class ResourcesService {
     private databaseService: DatabaseService,
   ) {}
 
-  async create(fields: TCreateResource): Promise<ResourceEntity> {
+  async create(fields: TResourceCreate): Promise<IResource> {
     try {
       const resource = this.resourcesRepository.create(fields);
-      return this.resourcesRepository.save(resource);
+      return await this.resourcesRepository.save(resource);
     } catch (error) {
+      if (getField(error, 'code') === '23505') {
+        throw new ConflictException();
+      }
+
       Logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
-  async createManyDefault(
-    fieldsArr: TCreateResource[],
-  ): Promise<ResourceEntity[]> {
+  async createManyDefault(fieldsArr: TResourceCreate[]): Promise<IResource[]> {
     try {
       const resources = fieldsArr.map((fields) =>
         this.resourcesRepository.create({ ...fields, default: true }),
       );
-      return this.resourcesRepository.save(resources);
+      return await this.resourcesRepository.save(resources);
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
-  async getOne(id: string): Promise<ResourceEntity> {
+  async getOne(id: string): Promise<IResource> {
     let resource: ResourceEntity | null;
 
     try {
@@ -68,67 +71,62 @@ export class ResourcesService {
     return resource;
   }
 
-  prepareGetListOptions(
-    fields?: TGetListRequest<TGetResources>,
-    isDefault?: boolean,
-  ): TDatabaseGetList<ResourceEntity> {
-    const options = this.databaseService.preparePaginationOptions<
-      ResourceEntity,
-      TGetResources
-    >(fields);
-
+  buildGetListOptions(fields?: TResourceReqList) {
+    const { options, meta } =
+      this.databaseService.buildGetListOptions<ResourceEntity>(fields);
     options.where = {};
+    meta.filters = {};
 
-    if (fields?.name !== undefined) {
-      options.where.name = this.databaseService.iLike(`%${fields.name}%`);
+    if (fields?.reqSortField && fields.reqSortOrder) {
+      options.order = { [fields.reqSortField]: fields.reqSortOrder };
+      meta.sort = { field: fields.reqSortField, order: fields.reqSortOrder };
     }
 
-    if (fields?.path !== undefined) {
-      options.where.path = this.databaseService.iLike(`%${fields.path}%`);
+    if (fields?.name) {
+      options.where.name = ILike(`%${fields.name}%`);
+      meta.filters.name = fields.name;
     }
 
-    if (fields?.description !== undefined) {
-      options.where.description = this.databaseService.iLike(
-        `%${fields.description}%`,
-      );
+    if (fields?.path) {
+      options.where.path = ILike(`%${fields.path}%`);
+      meta.filters.path = fields.path;
     }
 
-    if (isDefault !== undefined) {
-      options.where.default = isDefault;
+    if (fields?.enabled !== undefined) {
+      options.where.enabled = fields.enabled;
+      meta.filters.enabled = fields.enabled;
     }
 
-    return options;
+    if (fields?.default !== undefined) {
+      options.where.default = fields.default;
+      meta.filters.default = fields.default;
+    }
+
+    return { options, meta };
   }
 
-  async getList(
-    fields?: TGetListRequest<TGetResources>,
-    isDefault?: boolean,
-  ): Promise<IGetListResponse<ResourceEntity>> {
-    const options = this.prepareGetListOptions(fields, isDefault);
+  async getList(fields?: TResourceReqList): Promise<TResourceResList> {
+    const { options, meta } = this.buildGetListOptions(fields);
+    const result: TResourceResList = { rows: [] };
+    result.meta = meta;
 
     try {
       if (fields?.reqCount) {
-        const result = await this.resourcesRepository.findAndCount(options);
-        return {
-          rows: result[0],
-          page: options.skip / options.take + 1,
-          limit: options.take,
-          count: result[1],
-        };
+        const query = await this.resourcesRepository.findAndCount(options);
+        result.rows.push(...query[0]);
+        result.meta.total = query[1];
       } else {
-        return {
-          rows: await this.resourcesRepository.find(options),
-          page: options.skip / options.take + 1,
-          limit: options.take,
-        };
+        result.rows.push(...(await this.resourcesRepository.find(options)));
       }
+
+      return result;
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
-  async update(id: string, fields: TUpdateResource): Promise<void> {
+  async update(id: string, fields: TResourceUpdate): Promise<void> {
     let result: UpdateResult;
 
     if (Object.keys(fields).length === 0) {

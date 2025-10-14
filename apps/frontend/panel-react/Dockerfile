@@ -1,16 +1,16 @@
 FROM node:lts-alpine AS base
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG APP_DIR=/usr/src/app
 ARG HOST_DIR=/apps/frontend/panel-react
-ARG SUB_DIR=/usr/src/app
-ARG HOME_DIR=${SUB_DIR}${HOST_DIR}
+ARG HOME_DIR=${APP_DIR}${HOST_DIR}
 WORKDIR ${HOME_DIR}
 COPY ${HOST_DIR}/package*.json .
+COPY ./shared ${APP_DIR}/shared
 
 FROM base AS development
 ENV NODE_ENV=development
 # NOTE: Windows hot reload fix
 ENV WATCHPACK_POLLING=true
-COPY ./shared ${SUB_DIR}/shared
 RUN npm install
 CMD ["npx", "next", "dev"]
 
@@ -21,7 +21,6 @@ ARG API_PORT
 ARG API_URL
 ARG GOOGLE_CLIENT_ID
 RUN apk add --no-cache libc6-compat
-COPY ./shared ${SUB_DIR}/shared
 RUN npm ci
 COPY ${HOST_DIR} .
 RUN npm run build

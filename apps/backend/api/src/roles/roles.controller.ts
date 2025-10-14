@@ -15,20 +15,20 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
 import { RolesService } from './roles.service';
-import { CreateRoleDto } from './dto/create-role.dto';
+import { RoleCreateDto } from './dto/role-create.dto';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 import { ERights } from 'libs/constants';
 import { JwtGuard } from 'src/auth/jwt.guard';
-import { GetRolesDto } from './dto/get-roles.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { QueryItemsDto } from 'src/database/dto/query-items.dto';
-import { ExternalRoleDto } from './dto/external-role.dto';
-import { RolesListDto } from './dto/roles-list.dto';
-import { RightsQueryItemsDto } from 'src/database/dto/rights-query-items.dto';
-import { ROUTES } from '@ap/shared/src/libs';
-import { getT } from '@ap/shared/src/locales';
-import { IGetListResponse, IRole } from '@ap/shared/src/types';
+import { RoleReqListDto } from './dto/role-req-list.dto';
+import { RoleUpdateDto } from './dto/role-update.dto';
+import { ReqItemsDto } from 'src/database/dto/req-items.dto';
+import { RoleExternalDto } from './dto/role-external.dto';
+import { RoleResListDto } from './dto/role-res-list.dto';
+import { RightsReqItemsDto } from 'src/database/dto/rights-req-items.dto';
+import { ROUTES } from '@ap/shared/dist/libs';
+import { getT } from '@ap/shared/dist/locales';
+import { IRole, TRoleResList } from '@ap/shared/dist/types';
 
 const route = ROUTES.api.roles.substring(1);
 
@@ -38,38 +38,38 @@ export class RolesController {
   constructor(private roleService: RolesService) {}
 
   @ApiOperation({ summary: getT().entityCreation })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalRoleDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: RoleExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @Roles({ path: route, action: ERights.Creating })
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
-  async create(@Body() createRoleDto: CreateRoleDto): Promise<IRole> {
-    const role = await this.roleService.create(createRoleDto);
-    return plainToInstance(ExternalRoleDto, role);
+  async create(@Body() roleCreateDto: RoleCreateDto): Promise<IRole> {
+    const role = await this.roleService.create(roleCreateDto);
+    return plainToInstance(RoleExternalDto, role);
   }
 
   @ApiOperation({ summary: getT().getEntity })
-  @ApiResponse({ status: HttpStatus.OK, type: ExternalRoleDto })
+  @ApiResponse({ status: HttpStatus.OK, type: RoleExternalDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get('/:id')
   async getOne(@Param('id') id: string): Promise<IRole> {
     const role = await this.roleService.getOne(id);
-    return plainToInstance(ExternalRoleDto, role);
+    return plainToInstance(RoleExternalDto, role);
   }
 
   @ApiOperation({ summary: getT().getEntities })
-  @ApiResponse({ status: HttpStatus.OK, type: RolesListDto })
+  @ApiResponse({ status: HttpStatus.OK, type: RoleResListDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get()
   async getList(
-    @Query() getRolesDto: GetRolesDto,
-  ): Promise<IGetListResponse<IRole>> {
-    const roles = await this.roleService.getList(getRolesDto);
-    return plainToInstance(RolesListDto, roles);
+    @Query() roleReqListDto: RoleReqListDto,
+  ): Promise<TRoleResList> {
+    const roles = await this.roleService.getList(roleReqListDto);
+    return plainToInstance(RoleResListDto, roles);
   }
 
   @ApiOperation({ summary: getT().updateEntity })
@@ -80,9 +80,9 @@ export class RolesController {
   @Patch('/:id')
   async update(
     @Param('id') id: string,
-    @Body() updateRoleDto: UpdateRoleDto,
+    @Body() roleUpdateDto: RoleUpdateDto,
   ): Promise<void> {
-    await this.roleService.update(id, updateRoleDto);
+    await this.roleService.update(id, roleUpdateDto);
   }
 
   @ApiOperation({ summary: getT().updateEntity })
@@ -93,9 +93,9 @@ export class RolesController {
   @Patch('/:id/rights')
   async updateRights(
     @Param('id') id: string,
-    @Body() rightsQueryItemsDta: RightsQueryItemsDto,
+    @Body() rightsReqItemsDto: RightsReqItemsDto,
   ): Promise<void> {
-    await this.roleService.updateRights(id, rightsQueryItemsDta.items);
+    await this.roleService.updateRights(id, rightsReqItemsDto.items);
   }
 
   @ApiOperation({ summary: getT().deleteEntity })
@@ -104,9 +104,7 @@ export class RolesController {
   @Roles({ path: route, action: ERights.Deleting })
   @UseGuards(JwtGuard, RolesGuard)
   @Delete()
-  async delete(
-    @Body() queryItemsDto: QueryItemsDto<IRole['id']>,
-  ): Promise<void> {
-    await this.roleService.delete(queryItemsDto.items);
+  async delete(@Body() reqItemsDto: ReqItemsDto<IRole['id']>): Promise<void> {
+    await this.roleService.delete(reqItemsDto.items);
   }
 }

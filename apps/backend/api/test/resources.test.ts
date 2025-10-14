@@ -9,22 +9,21 @@ import {
   wrongValue,
 } from './app.setup';
 import {
-  IGetListResponse,
-  IQueryItems,
+  IReqItems,
   IResource,
-  TCreateResource,
-  TGetListRequest,
-  TGetResources,
-  TUpdateResource,
-} from '@ap/shared/src/types';
-import { ROUTES } from '@ap/shared/src/libs';
+  TResourceCreate,
+  TResourceReqList,
+  TResourceResList,
+  TResourceUpdate,
+} from '@ap/shared/dist/types';
+import { ROUTES } from '@ap/shared/dist/libs';
 
 const runResourcesTests = () => {
   describe('Resources', () => {
     let entity: IResource;
 
     describe('Create', () => {
-      const createEntity: TCreateResource = {
+      const createEntity: TResourceCreate = {
         name: 'Test',
         path: 'test',
         description: 'Test entity',
@@ -93,9 +92,9 @@ const runResourcesTests = () => {
             reqLimit: 1,
             reqPage: 1,
             reqCount: true,
-          } satisfies TGetListRequest<TGetResources>)
+          } satisfies TResourceReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IResource>);
+          .then((res) => res.body as TResourceResList);
 
         expect(getListResBody).toHaveProperty('count', 5);
         expect(getListResBody).toHaveProperty('page', 1);
@@ -108,9 +107,9 @@ const runResourcesTests = () => {
             reqLimit: 1,
             reqPage: 1,
             path: 'te',
-          } satisfies TGetListRequest<TGetResources>)
+          } satisfies TResourceReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IResource>);
+          .then((res) => res.body as TResourceResList);
 
         expect(getListResBody.rows).toHaveProperty('length', 1);
         expect(getListResBody.rows[0]).toHaveProperty('path', entity.path);
@@ -179,7 +178,7 @@ const runResourcesTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.resource(wrongId))
           .set('Cookie', adminCookies)
-          .send({ enabled: true } satisfies TUpdateResource)
+          .send({ enabled: true } satisfies TResourceUpdate)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -189,7 +188,7 @@ const runResourcesTests = () => {
           .set('Cookie', adminCookies)
           .send({
             name: entity.name + entity.name,
-          } satisfies TUpdateResource)
+          } satisfies TResourceUpdate)
           .expect(HttpStatus.NO_CONTENT);
 
         entity.name = entity.name + entity.name;
@@ -215,13 +214,13 @@ const runResourcesTests = () => {
       it('Incorrect', async () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.resources)
-          .send({ items: [entity.id] } satisfies IQueryItems<IResource['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IResource['id']>)
           .expect(HttpStatus.UNAUTHORIZED);
 
         await request(app.getHttpServer())
           .delete(ROUTES.api.resources)
           .set('Cookie', adminCookies)
-          .send({ items: [wrongId] } satisfies IQueryItems<IResource['id']>)
+          .send({ items: [wrongId] } satisfies IReqItems<IResource['id']>)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -229,7 +228,7 @@ const runResourcesTests = () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.resources)
           .set('Cookie', adminCookies)
-          .send({ items: [entity.id] } satisfies IQueryItems<IResource['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IResource['id']>)
           .expect(HttpStatus.NO_CONTENT);
 
         await request(app.getHttpServer())

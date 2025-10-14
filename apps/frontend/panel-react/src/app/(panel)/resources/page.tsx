@@ -1,10 +1,11 @@
-import { FC } from 'react';
-import { Metadata } from 'next/types';
+import { FC } from "react";
+import { Metadata } from "next/types";
+import { notFound } from "next/navigation";
 
-import resourcesService from '@/shared/api/resources/resourcesService';
-import { IAppPage } from '@/app/types';
-import ResourcesPage from '@/views/Panel/Resources/ResourcesPage';
-import { getT } from '@ap/shared/src/locales';
+import { IAppPage } from "@/app/types";
+import { getT } from "@ap/shared/dist/locales";
+import ListResourcesPage from "@/views/panel/resources/ListResourcesPage";
+import resourcesService from "@/entities/resource/service";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -16,13 +17,12 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const Page: FC<IAppPage> = async ({ searchParams }) => {
   const t = getT();
-  const { reqPage, reqLimit } = await searchParams;
-  const { data } = await resourcesService.getList({
-    reqPage: Number(reqPage),
-    reqLimit: Number(reqLimit),
-    reqCount: true,
-  });
+  const { data } = await resourcesService.getList(await searchParams);
 
-  return <ResourcesPage data={data} h1={t.resources} />;
+  if (data) {
+    return <ListResourcesPage data={data} h1={t.resources} />;
+  }
+
+  return notFound();
 };
 export default Page;

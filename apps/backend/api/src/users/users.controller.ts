@@ -14,21 +14,21 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
-import { CreateUserDto } from './dto/create-user.dto';
+import { UserCreateDto } from './dto/user-create.dto';
 import { UsersService } from './users.service';
 import { Roles } from 'src/roles/roles.decorator';
 import { RolesGuard } from 'src/roles/roles.guard';
 import { ERights } from 'libs/constants';
 import { JwtGuard } from 'src/auth/jwt.guard';
-import { GetUsersDto } from './dto/get-users.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { QueryItemsDto } from 'src/database/dto/query-items.dto';
-import { ExternalUserDto } from './dto/external-user.dto';
-import { UsersListDto } from './dto/users-list.dto';
-import { UsersRolesQueryItemsDto } from 'src/database/dto/users-roles-query-items.dto';
-import { ROUTES } from '@ap/shared/src/libs';
-import { getT } from '@ap/shared/src/locales';
-import { IGetListResponse, IUser } from '@ap/shared/src/types';
+import { UserReqListDto } from './dto/user-req-list.dto';
+import { UserUpdateDto } from './dto/user-update.dto';
+import { ReqItemsDto } from 'src/database/dto/req-items.dto';
+import { UserExternalDto } from './dto/user-external.dto';
+import { UserResListDto } from './dto/user-res-list.dto';
+import { UsersRolesReqItemsDto } from 'src/database/dto/users-roles-req-items.dto';
+import { ROUTES } from '@ap/shared/dist/libs';
+import { getT } from '@ap/shared/dist/locales';
+import { IResList, IUser } from '@ap/shared/dist/types';
 
 const route = ROUTES.api.users.substring(1);
 
@@ -38,38 +38,38 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @ApiOperation({ summary: getT().entityCreation })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @Roles({ path: route, action: ERights.Creating })
   @UseGuards(JwtGuard, RolesGuard)
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<IUser> {
-    const user = await this.usersService.create(createUserDto);
-    return plainToInstance(ExternalUserDto, user);
+  async create(@Body() userCreateDto: UserCreateDto): Promise<IUser> {
+    const user = await this.usersService.create(userCreateDto);
+    return plainToInstance(UserExternalDto, user);
   }
 
   @ApiOperation({ summary: getT().getEntity })
-  @ApiResponse({ status: HttpStatus.OK, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserExternalDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get('/:id')
   async getOne(@Param('id') id: string): Promise<IUser> {
     const user = await this.usersService.getOnePublic(id);
-    return plainToInstance(ExternalUserDto, user);
+    return plainToInstance(UserExternalDto, user);
   }
 
   @ApiOperation({ summary: getT().getEntities })
-  @ApiResponse({ status: HttpStatus.OK, type: UsersListDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResListDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get()
   async getList(
-    @Query() getUsersDto: GetUsersDto,
-  ): Promise<IGetListResponse<IUser>> {
-    const users = await this.usersService.getList(getUsersDto);
-    return plainToInstance(UsersListDto, users);
+    @Query() userReqListDto: UserReqListDto,
+  ): Promise<IResList<IUser>> {
+    const users = await this.usersService.getList(userReqListDto);
+    return plainToInstance(UserResListDto, users);
   }
 
   @ApiOperation({ summary: getT().updateEntity })
@@ -80,9 +80,9 @@ export class UsersController {
   @Patch('/:id')
   async update(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() userUpdateDto: UserUpdateDto,
   ): Promise<void> {
-    await this.usersService.updateFields(id, updateUserDto);
+    await this.usersService.updateFields(id, userUpdateDto);
   }
 
   @ApiOperation({ summary: getT().updateEntity })
@@ -93,9 +93,9 @@ export class UsersController {
   @Patch('/:id/roles')
   async updateRoles(
     @Param('id') id: string,
-    @Body() usersRolesQueryItemsDto: UsersRolesQueryItemsDto,
+    @Body() usersRolesReqItemsDto: UsersRolesReqItemsDto,
   ): Promise<void> {
-    await this.usersService.updateRoles(id, usersRolesQueryItemsDto.items);
+    await this.usersService.updateRoles(id, usersRolesReqItemsDto.items);
   }
 
   @ApiOperation({ summary: getT().deleteEntity })
@@ -104,9 +104,7 @@ export class UsersController {
   @Roles({ path: route, action: ERights.Deleting })
   @UseGuards(JwtGuard, RolesGuard)
   @Delete()
-  async delete(
-    @Body() queryItemsDto: QueryItemsDto<IUser['id']>,
-  ): Promise<void> {
+  async delete(@Body() queryItemsDto: ReqItemsDto<IUser['id']>): Promise<void> {
     await this.usersService.delete(queryItemsDto.items);
   }
 }

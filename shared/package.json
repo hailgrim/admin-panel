@@ -1,15 +1,18 @@
 {
   "name": "@ap/shared",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist"
   },
   "author": "",
   "license": "ISC",
   "description": "",
-  "types": "index.ts",
   "devDependencies": {
-    "@types/node": "^24.0.15"
+    "@types/node": "^24.0.15",
+    "typescript": "^5.9.2"
   }
 }

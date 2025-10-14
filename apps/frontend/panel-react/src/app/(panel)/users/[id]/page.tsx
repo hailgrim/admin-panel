@@ -1,14 +1,12 @@
-'use server';
+import { FC } from "react";
+import { Metadata } from "next/types";
+import { notFound } from "next/navigation";
 
-import { FC } from 'react';
-import { Metadata } from 'next/types';
-import { notFound } from 'next/navigation';
-
-import usersService from '@/shared/api/users/usersService';
-import rolesService from '@/shared/api/roles/rolesService';
-import UserPage from '@/views/Panel/Users/UserPage';
-import { IAppPage } from '@/app/types';
-import { getT } from '@ap/shared/src/locales';
+import { IAppPage } from "@/app/types";
+import { getT } from "@ap/shared/dist/locales";
+import EditUserPage from "@/views/panel/users/EditUserPage";
+import usersService from "@/entities/user/service";
+import rolesService from "@/entities/role/service";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -28,7 +26,7 @@ const Page: FC<IAppPage> = async ({ params }) => {
 
     if (user.data) {
       return (
-        <UserPage
+        <EditUserPage
           h1={t.user}
           data={{ user: user.data, roles: roles.data?.rows }}
         />

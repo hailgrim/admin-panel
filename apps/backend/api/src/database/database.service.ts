@@ -1,35 +1,25 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DataSource, ILike, Like } from 'typeorm';
+import { Injectable } from '@nestjs/common';
 
 import { TDatabaseGetList } from './database.types';
-import { TGetListRequest } from '@ap/shared/src/types';
+import { IReqList, IResListMeta } from '@ap/shared/dist/types';
 
 @Injectable()
-export class DatabaseService implements OnModuleInit {
-  constructor(private dataSource: DataSource) {}
-
-  public iLike: typeof Like | typeof ILike = ILike;
-
-  async onModuleInit() {
-    if (this.dataSource.options.type === 'sqlite') {
-      await this.dataSource.query('PRAGMA case_sensitive_like = OFF;');
-      this.iLike = Like;
-    }
-  }
-
-  preparePaginationOptions<T = unknown, U = unknown>(
-    fields?: TGetListRequest<U>,
-  ): TDatabaseGetList<T> {
-    const options: TDatabaseGetList<T> = { skip: 0, take: 25 };
-
-    if (fields?.reqLimit && fields.reqLimit > 0 && fields.reqLimit <= 100) {
-      options.take = fields.reqLimit;
+export class DatabaseService {
+  buildGetListOptions<T extends object>(
+    reqList: IReqList<T> = {},
+    options: TDatabaseGetList<T> = { skip: 0, take: 25 },
+    meta: IResListMeta<T> = {},
+  ) {
+    if (reqList.reqLimit && reqList.reqLimit > 0 && reqList.reqLimit <= 100) {
+      options.take = reqList.reqLimit;
+      meta.limit = options.take;
     }
 
-    if (fields?.reqPage && fields.reqPage > 0 && options.take) {
-      options.skip = (fields.reqPage - 1) * options.take;
+    if (reqList.reqPage && reqList.reqPage > 0) {
+      options.skip = (reqList.reqPage - 1) * options.take;
+      meta.page = options.skip / options.take + 1;
     }
 
-    return options;
+    return { options, meta };
   }
 }

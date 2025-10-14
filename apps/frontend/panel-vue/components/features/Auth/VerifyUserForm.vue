@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from 'vuetify'
 
-const { email } = defineProps<{
+import authApi from '~/components/entities/auth/authApi'
+
+const props = defineProps<{
   email: string
 }>()
 const emit = defineEmits<{
@@ -12,8 +14,8 @@ const emit = defineEmits<{
 const { t, locale } = useI18n()
 const code = ref('')
 const codeIsValid = (value: string) =>
-  value.length > 0 || `${t('codeFromEmail')} (${email})`
-const { status, error, execute } = authApi.verifyUser({ email, code })
+  value.length > 0 || `${t('codeFromEmail')} (${props.email})`
+const { status, error, execute } = authApi.verifyUser({ email: props.email, code })
 
 const errorText = ref<string | null>(null)
 

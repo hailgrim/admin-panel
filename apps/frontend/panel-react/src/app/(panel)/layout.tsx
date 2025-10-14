@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import { styled, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-import { usePathname, useRouter } from 'next/navigation';
-import { FC, PropsWithChildren, useEffect, useState } from 'react';
-import Box from '@mui/material/Box';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import LogoutIcon from '@mui/icons-material/Logout';
-import Divider from '@mui/material/Divider';
+import { styled, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import { usePathname, useRouter } from "next/navigation";
+import { FC, PropsWithChildren, useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import Divider from "@mui/material/Divider";
 
-import { useAppSelector } from '@/shared/store/hooks';
-import useTranslate from '@/shared/hooks/useTranslate';
-import theme, { sideBarOpenedWidth, sideBarWidth } from '@/shared/lib/theme';
-import { useAppDispatch } from '@/shared/store/hooks';
-import authApi from '@/shared/api/auth/authApi';
-import { addAlert, setProfile } from '@/shared/store/main/main';
-import SideBar from '@/widgets/SideBar/SideBar';
-import LayoutAlerts from '@/widgets/Alerts/LayoutAlerts';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { getErrorText, ROUTES } from '@ap/shared/src/libs';
+import { useAppSelector } from "@/app/store/hooks";
+import useTranslate from "@/shared/hooks/useTranslate";
+import theme, { sideBarOpenedWidth, sideBarWidth } from "@/shared/lib/theme";
+import { useAppDispatch } from "@/app/store/hooks";
+import { addAlert, setProfile } from "@/app/store/main/main";
+import SideBar from "@/widgets/SideBar/SideBar";
+import LayoutAlerts from "@/widgets/Alerts/LayoutAlerts";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   const dispatch = useAppDispatch();
@@ -45,7 +45,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   }, [profile, signOut]);
 
   useEffect(() => {
-    if (isSuccess || (error && 'status' in error && error.status === 401)) {
+    if (isSuccess || (error && "status" in error && error.status === 401)) {
       router.push(`${ROUTES.ui.signIn}?return=${encodeURIComponent(pathname)}`);
     }
   }, [isSuccess, router, pathname, error]);
@@ -54,7 +54,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
     if (error) {
       dispatch(
         addAlert({
-          type: 'error',
+          type: "error",
           text: getErrorText(error, lRef.current),
         })
       );
@@ -78,7 +78,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
                 edge="start"
                 color="inherit"
                 aria-label="menu"
-                sx={{ mr: 'auto' }}
+                sx={{ mr: "auto" }}
                 onClick={() => setOpen((prev) => !prev)}
               >
                 <MenuIcon />
@@ -109,15 +109,15 @@ export default Layout;
 
 const AppBarStyled = styled(AppBar, {
   shouldForwardProp: (prop) =>
-    !(['openStyled'] as PropertyKey[]).includes(prop),
+    !(["openStyled"] as PropertyKey[]).includes(prop),
 })<{ openStyled?: boolean }>(({ openStyled }) => ({
-  width: 'auto',
+  width: "auto",
   left: openStyled ? sideBarOpenedWidth : sideBarWidth,
-  transition: theme.transitions.create('left', {
+  transition: theme.transitions.create("left", {
     easing: theme.transitions.easing.easeOut,
     duration: theme.transitions.duration.short,
   }),
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down("md")]: {
     left: 0,
   },
 }));

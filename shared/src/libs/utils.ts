@@ -1,6 +1,7 @@
-import { getT } from '../locales/utils';
-import type { IMenuItem } from '../types/ui';
-import { ROUTES } from './constants';
+import { getT } from "../locales/utils";
+import { IReqList, IResListMeta } from "../types";
+import type { IMenuItem } from "../types/ui";
+import { ROUTES } from "./constants";
 
 /**
  * @param {Date | string | number} date Parsed date
@@ -9,13 +10,13 @@ import { ROUTES } from './constants';
 export const getDateString = (
   date: Date | string | number = Date.now()
 ): string => {
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
   const now = Date.now();
   const parsedDate = new Date(date);
   const parsedTime = parsedDate.getTime();
 
   if (isNaN(parsedTime)) {
-    return '-';
+    return "-";
   }
 
   const differenceMS = now - parsedTime;
@@ -24,30 +25,27 @@ export const getDateString = (
   const dayMS = hourMS * 24;
 
   if (differenceMS < minuteMS) {
-    return rtf.format(0, 'minute');
+    return rtf.format(0, "minute");
   } else if (differenceMS < hourMS) {
-    return rtf.format(-1 * Math.floor(differenceMS / minuteMS), 'minute');
+    return rtf.format(-1 * Math.floor(differenceMS / minuteMS), "minute");
   } else if (differenceMS < dayMS) {
-    return rtf.format(-1 * Math.floor(differenceMS / hourMS), 'hour');
+    return rtf.format(-1 * Math.floor(differenceMS / hourMS), "hour");
   } else {
     return parsedDate.toLocaleString();
   }
 };
 
 /**
- * @param {Partial<T>} oldObject Original object
- * @param {Partial<T>} newObject Updated object
+ * @param {T} oldObject Original object
+ * @param {T} newObject Updated object
  * @returns {Partial<T>} An object with changed fields only
  */
-export const getUpdatedValues = <T>(
-  oldObject: Partial<T>,
-  newObject: Partial<T>
-): Partial<T> => {
+export const getUpdatedValues = <T>(oldObject: T, newObject: T): Partial<T> => {
   const result: Partial<T> = {};
 
-  for (const value in newObject) {
-    if (newObject[value] !== oldObject[value]) {
-      result[value] = newObject[value];
+  for (const key in newObject) {
+    if (newObject[key] !== oldObject[key]) {
+      result[key] = newObject[key];
     }
   }
 
@@ -68,7 +66,7 @@ export const testString = (regex: RegExp, payload: string): boolean => {
  * @param {string} lang Error language
  * @returns {string} Formatted error text
  */
-export const getErrorText = (error?: unknown, lang: string = 'en'): string => {
+export const getErrorText = (error?: unknown, lang: string = "en"): string => {
   const t = getT(lang);
 
   if (!(error instanceof Object)) {
@@ -76,22 +74,22 @@ export const getErrorText = (error?: unknown, lang: string = 'en'): string => {
   }
 
   if (
-    ('status' in error && error.status === 429) ||
-    ('statusCode' in error && error.statusCode === 429)
+    ("status" in error && error.status === 429) ||
+    ("statusCode" in error && error.statusCode === 429)
   ) {
     return t.tooManyRequests;
   }
 
   let obj = error;
 
-  if ('data' in obj && obj.data instanceof Object) {
+  if ("data" in obj && obj.data instanceof Object) {
     obj = obj.data;
   }
 
-  if ('message' in obj) {
+  if ("message" in obj) {
     if (obj.message instanceof Array) {
-      return obj.message.join('.\r\n').concat('.');
-    } else if (typeof obj.message === 'string') {
+      return obj.message.join(".\r\n").concat(".");
+    } else if (typeof obj.message === "string") {
       return obj.message;
     }
   }
@@ -101,6 +99,7 @@ export const getErrorText = (error?: unknown, lang: string = 'en'): string => {
 
 /**
  * @param {string} href Checked link
+ * @param {IMenuItem} navTree Navigation tree
  * @returns {boolean} true if link found in the navigation tree
  */
 export const checkActiveLink = (href: string, navTree: IMenuItem): boolean => {
@@ -122,7 +121,9 @@ export const checkActiveLink = (href: string, navTree: IMenuItem): boolean => {
 };
 
 /**
- * @param {string} state Random string
+ * @param {string} googleClientId Google Client ID
+ * @param {string} redirectUri URI to redirect to after login
+ * @param {string} state Random string for security
  * @returns {boolean} Google Login URL
  */
 export const getGoogleSignInUrl = (
@@ -130,16 +131,74 @@ export const getGoogleSignInUrl = (
   redirectUri: string,
   state: string
 ): string => {
-  let url = 'https://accounts.google.com/o/oauth2/v2/auth';
+  let url = "https://accounts.google.com/o/oauth2/v2/auth";
   url += `?client_id=${encodeURIComponent(googleClientId)}`;
   url += `&redirect_uri=${encodeURIComponent(
     `https://${redirectUri}${ROUTES.ui.signInGoogle}`
   )}`;
   url += `&scope=${encodeURIComponent(
-    'https://www.googleapis.com/auth/userinfo.profile'
+    "https://www.googleapis.com/auth/userinfo.profile"
   )}`;
   url += `&state=${encodeURIComponent(state)}`;
-  url += '&include_granted_scopes=true';
-  url += '&response_type=token';
+  url += "&include_granted_scopes=true";
+  url += "&response_type=token";
   return url;
+};
+
+/**
+ * @param {unknown} object The object from which the field is extracted
+ * @param {string} field Field name
+ * @returns {T | undefined} Field value or nothing
+ */
+export const getField = <T = unknown>(
+  object: unknown,
+  field: string
+): T | undefined => {
+  if (typeof object === "object" && object !== null && field in object) {
+    return object[field as keyof object] as T;
+  }
+
+  return undefined;
+};
+
+/**
+ * @param {IResListMeta} resMeta Metadata from the list-response
+ * @returns {IReqList} Request parameters
+ */
+export const resListMetaToReq = <T = unknown, S = T, F = T>(
+  resMeta: IResListMeta<T, S, F>
+): IReqList<S> & Record<string, unknown> => {
+  return {
+    reqPage: resMeta.page,
+    reqLimit: resMeta.limit,
+    reqSortField: resMeta.sort?.field,
+    reqSortOrder: resMeta.sort?.order,
+    ...resMeta.filters,
+  };
+};
+
+/**
+ * @param {object} options Options for creating search parameters
+ * @returns {URLSearchParams} Search parameters
+ */
+export const createSearchParams = ({
+  data,
+  exclude,
+  searchParams,
+}: {
+  data: object;
+  exclude?: string[];
+  searchParams?: string[][] | Record<string, string> | string | URLSearchParams;
+}): URLSearchParams => {
+  const newParams = new URLSearchParams(searchParams);
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === undefined || value === "" || exclude?.includes(key)) {
+      return;
+    }
+
+    newParams.set(key, String(value));
+  });
+
+  return newParams;
 };

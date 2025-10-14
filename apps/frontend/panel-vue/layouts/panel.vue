@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import '~/assets/styles.scss'
+import authApi from '~/components/entities/auth/authApi'
 
 const { t } = useI18n()
 const route = useRoute()

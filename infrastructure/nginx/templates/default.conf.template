@@ -36,7 +36,7 @@ server {
     server_name ${API_URL};
 
     location / {
-        proxy_pass http://${API_HOST}:${API_PORT};
+        proxy_pass http://${API_HOST}:${API_PORT}/;
     }
 }
 
@@ -59,7 +59,7 @@ server {
     server_name ${PANEL_REACT_URL};
 
     location / {
-        proxy_pass http://${PANEL_REACT_HOST}:${PANEL_REACT_PORT};
+        proxy_pass http://${PANEL_REACT_HOST}:${PANEL_REACT_PORT}/;
     }
 }
 
@@ -82,6 +82,6 @@ server {
     server_name ${PANEL_VUE_URL};
 
     location / {
-        proxy_pass http://${PANEL_VUE_HOST}:${PANEL_VUE_PORT};
+        proxy_pass http://${PANEL_VUE_HOST}:${PANEL_VUE_PORT}/;
     }
 }

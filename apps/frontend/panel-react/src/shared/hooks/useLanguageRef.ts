@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
-import { useAppSelector } from '../store/hooks';
+import { useAppSelector } from "../../app/store/hooks";
 
 const useLanguageRef = () => {
   const language = useAppSelector((store) => store.main.language);

@@ -9,7 +9,7 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 import { cfg } from 'config/configuration';
 import { ETemplates } from 'libs/constants';
-import { getT } from '@ap/shared/src/locales';
+import { getT } from '@ap/shared/dist/locales';
 
 @Injectable()
 export class AppService {

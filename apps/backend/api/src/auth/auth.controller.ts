@@ -29,11 +29,11 @@ import {
 import { createCookieOptions, getIP } from 'libs/utils';
 import { SignInGoogleDto } from './dto/sign-in-google.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ExternalUserDto } from 'src/users/dto/external-user.dto';
+import { UserExternalDto } from 'src/users/dto/user-external.dto';
 import { cfg } from 'config/configuration';
-import { ROUTES } from '@ap/shared/src/libs';
-import { getT } from '@ap/shared/src/locales';
-import { IUser } from '@ap/shared/src/types';
+import { ROUTES } from '@ap/shared/dist/libs';
+import { getT } from '@ap/shared/dist/locales';
+import { IUser } from '@ap/shared/dist/types';
 
 @ApiTags(getT().authorization)
 @Controller(ROUTES.api.auth.substring(1))
@@ -41,12 +41,12 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiOperation({ summary: getT().signUp })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @Post('sign-up')
   async signUp(@Body() signUpDto: SignUpDto): Promise<IUser> {
     const user = await this.authService.signUp(signUpDto);
-    return plainToInstance(ExternalUserDto, user);
+    return plainToInstance(UserExternalDto, user);
   }
 
   @ApiOperation({ summary: getT().forgotPassword })
@@ -56,7 +56,7 @@ export class AuthController {
   async forgotPassword(
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ): Promise<void> {
-    await this.authService.forgotPassword(forgotPasswordDto.email);
+    await this.authService.forgotPassword(forgotPasswordDto);
   }
 
   @ApiOperation({ summary: getT().resetPassword })
@@ -66,15 +66,11 @@ export class AuthController {
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<void> {
-    await this.authService.resetPassword(
-      resetPasswordDto.email,
-      resetPasswordDto.code,
-      resetPasswordDto.password,
-    );
+    await this.authService.resetPassword(resetPasswordDto);
   }
 
   @ApiOperation({ summary: getT().signIn })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
@@ -102,7 +98,7 @@ export class AuthController {
       res.clearCookie('rememberMe', createCookieOptions());
     }
 
-    return plainToInstance(ExternalUserDto, req.user);
+    return plainToInstance(UserExternalDto, req.user);
   }
 
   @ApiOperation({ summary: getT().confirmRegistration })
@@ -110,11 +106,11 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('verify-user')
   async verifyUser(@Body() verifyUserDto: VerifyUserDto): Promise<void> {
-    await this.authService.verifyUser(verifyUserDto.email, verifyUserDto.code);
+    await this.authService.verifyUser(verifyUserDto);
   }
 
   @ApiOperation({ summary: getT().signUp })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: UserExternalDto })
   @HttpCode(HttpStatus.CREATED)
   @Post('sign-in/google')
   async signInGoogle(
@@ -142,7 +138,7 @@ export class AuthController {
       createCookieOptions(cfg.tokens.refresh.lifetime),
     );
 
-    return plainToInstance(ExternalUserDto, user);
+    return plainToInstance(UserExternalDto, user);
   }
 
   @ApiOperation({ summary: getT().refreshToken })

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -8,6 +9,7 @@ import {
 import {
   DataSource,
   DeleteResult,
+  ILike,
   In,
   Repository,
   UpdateResult,
@@ -17,15 +19,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from './role.entity';
 import { RightsEntity } from '../database/rights.entity';
 import { DatabaseService } from 'src/database/database.service';
-import { TDatabaseGetList } from 'src/database/database.types';
 import {
-  IGetListResponse,
+  IResList,
   IRights,
-  TCreateRole,
-  TGetListRequest,
-  TGetRoles,
-  TUpdateRole,
-} from '@ap/shared/src/types';
+  TRoleCreate,
+  TRoleUpdate,
+  TRoleReqList,
+  TRoleResList,
+  IRole,
+} from '@ap/shared/dist/types';
+import { getField } from '@ap/shared/dist/libs';
 
 @Injectable()
 export class RolesService {
@@ -36,37 +39,41 @@ export class RolesService {
     private databaseService: DatabaseService,
   ) {}
 
-  async create(fields: TCreateRole): Promise<RoleEntity> {
+  async create(fields: TRoleCreate): Promise<IRole> {
     try {
       const role = this.rolesRepository.create(fields);
-      return this.rolesRepository.save(role);
+      return await this.rolesRepository.save(role);
     } catch (error) {
+      if (getField(error, 'code') === '23505') {
+        throw new ConflictException();
+      }
+
       Logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
   async findOrCreateDefault(
-    name: string,
-    description?: string,
-    isAdmin?: boolean,
-  ): Promise<RoleEntity> {
-    let role: RoleEntity;
+    fields: Partial<Pick<IRole, 'name' | 'description' | 'admin'>>,
+  ): Promise<IRole> {
+    let role: RoleEntity | null;
 
     try {
-      const result = await this.rolesRepository.findOne({
-        where: { name, default: true, admin: Boolean(isAdmin) },
+      role = await this.rolesRepository.findOne({
+        where: {
+          name: fields.name,
+          default: true,
+          admin: fields.admin ?? false,
+        },
         relations: { rights: { resource: true } },
       });
 
-      if (result) {
-        role = result;
-      } else {
+      if (!role) {
         role = this.rolesRepository.create({
-          name,
-          description,
+          name: fields.name,
+          description: fields.description,
           default: true,
-          admin: Boolean(isAdmin),
+          admin: fields.admin ?? false,
           enabled: true,
         });
         await this.rolesRepository.save(role);
@@ -79,7 +86,7 @@ export class RolesService {
     return role;
   }
 
-  async getOne(id: string): Promise<RoleEntity> {
+  async getOne(id: string): Promise<IRole> {
     let role: RoleEntity | null;
 
     try {
@@ -99,67 +106,62 @@ export class RolesService {
     return role;
   }
 
-  prepareGetListOptions(
-    fields?: TGetListRequest<TGetRoles>,
-    isAdmin?: boolean,
-  ): TDatabaseGetList<RoleEntity> {
-    const options = this.databaseService.preparePaginationOptions<
-      RoleEntity,
-      TGetRoles
-    >(fields);
-
+  buildGetListOptions(fields?: TRoleReqList) {
+    const { options, meta } =
+      this.databaseService.buildGetListOptions<RoleEntity>(fields);
     options.where = {};
+    meta.filters = {};
 
-    if (fields?.name !== undefined) {
-      options.where.name = this.databaseService.iLike(`%${fields.name}%`);
+    if (fields?.reqSortField && fields.reqSortOrder) {
+      options.order = { [fields.reqSortField]: fields.reqSortOrder };
+      meta.sort = { field: fields.reqSortField, order: fields.reqSortOrder };
     }
 
-    if (fields?.description !== undefined) {
-      options.where.description = this.databaseService.iLike(
-        `%${fields.description}%`,
-      );
+    if (fields?.name) {
+      options.where.name = ILike(`%${fields.name}%`);
+      meta.filters.name = fields.name;
     }
 
     if (fields?.enabled !== undefined) {
       options.where.enabled = fields.enabled;
+      meta.filters.enabled = fields.enabled;
     }
 
-    if (isAdmin !== undefined) {
-      options.where.admin = isAdmin;
+    if (fields?.default !== undefined) {
+      options.where.default = fields.default;
+      meta.filters.default = fields.default;
     }
 
-    return options;
+    if (fields?.admin !== undefined) {
+      options.where.admin = fields.admin;
+      meta.filters.admin = fields.admin;
+    }
+
+    return { options, meta };
   }
 
-  async getList(
-    fields?: TGetListRequest<TGetRoles>,
-    isAdmin?: boolean,
-  ): Promise<IGetListResponse<RoleEntity>> {
-    const options = this.prepareGetListOptions(fields, isAdmin);
+  async getList(fields?: TRoleReqList): Promise<IResList<IRole>> {
+    const { options, meta } = this.buildGetListOptions(fields);
+    const result: TRoleResList = { rows: [] };
+    result.meta = meta;
 
     try {
       if (fields?.reqCount) {
-        const result = await this.rolesRepository.findAndCount(options);
-        return {
-          rows: result[0],
-          page: options.skip / options.take + 1,
-          limit: options.take,
-          count: result[1],
-        };
+        const query = await this.rolesRepository.findAndCount(options);
+        result.rows.push(...query[0]);
+        result.meta.total = query[1];
       } else {
-        return {
-          rows: await this.rolesRepository.find(options),
-          page: options.skip / options.take + 1,
-          limit: options.take,
-        };
+        result.rows.push(...(await this.rolesRepository.find(options)));
       }
+
+      return result;
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException();
     }
   }
 
-  async update(id: string, fields: TUpdateRole): Promise<boolean> {
+  async update(id: string, fields: TRoleUpdate): Promise<boolean> {
     let result: UpdateResult;
 
     if (Object.keys(fields).length === 0) {
@@ -196,7 +198,7 @@ export class RolesService {
 
     try {
       role = await queryRunner.manager.findOne(RoleEntity, {
-        where: { id, default: Boolean(defaultResource) },
+        where: { id, default: defaultResource ?? false },
       });
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -230,7 +232,7 @@ export class RolesService {
     }
   }
 
-  async delete(ids: string[]): Promise<boolean> {
+  async delete(ids: string[]): Promise<void> {
     let result: DeleteResult;
 
     try {
@@ -246,7 +248,5 @@ export class RolesService {
     if (result.affected === 0) {
       throw new NotFoundException();
     }
-
-    return true;
   }
 }

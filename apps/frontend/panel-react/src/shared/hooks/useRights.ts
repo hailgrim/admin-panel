@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { useAppSelector } from '../store/hooks';
+import { useAppSelector } from "../../app/store/hooks";
 
 const defaultRights = {
   creating: false,
@@ -10,7 +10,7 @@ const defaultRights = {
 };
 
 const useRights = (path: string) => {
-  const route = path.startsWith('/') ? path.slice(1) : path;
+  const route = path.startsWith("/") ? path.slice(1) : path;
   const [rights, setRights] = useState(defaultRights);
   const profile = useAppSelector((store) => store.main.profile);
 

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { FC } from 'react';
+import { FC } from "react";
 
-import AuthLayout from '@/views/AuthLayout';
-import ForgotPasswordForm from '@/features/Auth/ForgotPasswordForm';
-import { IPage } from '../types';
+import ForgotPasswordForm from "@/features/auth/ForgotPasswordForm";
+import { TPage } from "../types";
+import AuthLayout from "./AuthLayout";
 
-const ForgotPasswordPage: FC<IPage> = ({ h1 }) => {
+const ForgotPasswordPage: FC<TPage> = ({ h1 }) => {
   return (
     <AuthLayout h1={h1}>
       <ForgotPasswordForm />

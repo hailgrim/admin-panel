@@ -1,3 +1,5 @@
+import profileApi from '~/components/entities/profile/profileApi'
+
 export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.client) {
     return

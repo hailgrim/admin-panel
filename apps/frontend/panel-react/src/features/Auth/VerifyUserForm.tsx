@@ -1,15 +1,15 @@
-import { FC, FormEvent, useEffect, useState } from 'react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FC, FormEvent, useEffect, useState } from "react";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormField from '@/shared/ui/Form/FormField';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import authApi from '@/shared/api/auth/authApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { getErrorText } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormField from "@/shared/ui/Form/FormField";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { getErrorText } from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const VerifyUserForm: FC<{
   email: string;
@@ -22,7 +22,7 @@ const VerifyUserForm: FC<{
   const [verifyUser, { isSuccess, error, isFetching }] =
     authApi.useLazyVerifyUserQuery();
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
 
   const submitHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -6,8 +6,10 @@ definePageMeta({
   title: 'newRole',
   description: 'newRole',
 })
+
+const router = useRouter()
 </script>
 
 <template>
-  <CreateRoleForm />
+  <RoleCreate @create="router.push(ROUTES.ui.role($event.id))" />
 </template>

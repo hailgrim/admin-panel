@@ -1,17 +1,17 @@
-import { FC, useEffect, useRef, useState } from 'react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { FC, useEffect, useRef, useState } from "react";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormField from '@/shared/ui/Form/FormField';
-import { useAppDispatch, useAppSelector } from '@/shared/store/hooks';
-import { addAlert, setProfile } from '@/shared/store/main/main';
-import useRights from '@/shared/hooks/useRights';
-import profileApi from '@/shared/api/profile/profileApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { getErrorText, ROUTES } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormField from "@/shared/ui/Form/FormField";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { addAlert, setProfile } from "@/app/store/main/main";
+import useRights from "@/shared/hooks/useRights";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import profileApi from "@/entities/profile/api";
 
 const ChangeEmailConfirmForm: FC<{
   email: string;
@@ -27,7 +27,7 @@ const ChangeEmailConfirmForm: FC<{
   const profile = useAppSelector((store) => store.main.profile);
   const emailRef = useRef(email);
   const profileRef = useRef(profile);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState("");
 
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,7 +40,7 @@ const ChangeEmailConfirmForm: FC<{
         case 404:
           dispatch(
             addAlert({
-              type: 'error',
+              type: "error",
               text: tRef.current.wrongEmailOrCode,
             })
           );
@@ -48,7 +48,7 @@ const ChangeEmailConfirmForm: FC<{
         default:
           dispatch(
             addAlert({
-              type: 'error',
+              type: "error",
               text: getErrorText(error, lRef.current),
             })
           );

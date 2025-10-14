@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from 'vuetify'
 
-const { email } = defineProps<{
+import authApi from '~/components/entities/auth/authApi'
+
+const props = defineProps<{
   email: string
 }>()
 const emit = defineEmits<{
@@ -11,11 +13,11 @@ const emit = defineEmits<{
 const { t, locale } = useI18n()
 const code = ref('')
 const codeIsValid = (value: string) =>
-  value.length > 0 || `${t('codeFromEmail')} (${email})`
+  value.length > 0 || `${t('codeFromEmail')} (${props.email})`
 const password = ref('')
 const passwordIsValid = (value: string) =>
   testString(PASSWORD_REGEX, value) || t('passwordValidation')
-const { status, error, execute } = authApi.resetPassword({ email, password, code })
+const { status, error, execute } = authApi.resetPassword({ email: props.email, password, code })
 const errorText = ref<string | null>(null)
 const router = useRouter()
 

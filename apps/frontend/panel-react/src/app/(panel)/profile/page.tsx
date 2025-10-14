@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import { Metadata } from 'next/types';
 
-import ProfilePage from '@/views/Panel/ProfilePage';
-import { getT } from '@ap/shared/src/locales';
+import ProfilePage from '@/views/panel/ProfilePage';
+import { getT } from '@ap/shared/dist/locales';
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();

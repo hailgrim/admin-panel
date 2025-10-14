@@ -13,7 +13,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfileUpdateDto } from './dto/profile-update.dto';
 import { Roles } from 'src/roles/roles.decorator';
 import { ERights } from 'libs/constants';
 import { RolesGuard } from 'src/roles/roles.guard';
@@ -23,12 +23,12 @@ import { ProfileService } from './profile.service';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ChangeEmailRequestDto } from './dto/change-email-request.dto';
 import { ChangeEmailConfirmDto } from './dto/change-email-confirm.dto';
-import { QueryItemsDto } from 'src/database/dto/query-items.dto';
-import { ExternalUserDto } from 'src/users/dto/external-user.dto';
-import { ExternalSessionDto } from './dto/external-session.dto';
-import { ROUTES } from '@ap/shared/src/libs';
-import { getT } from '@ap/shared/src/locales';
-import { IUser, TExternalSession } from '@ap/shared/src/types';
+import { ReqItemsDto } from 'src/database/dto/req-items.dto';
+import { UserExternalDto } from 'src/users/dto/user-external.dto';
+import { SessionExternalDto } from './dto/session-external.dto';
+import { ROUTES } from '@ap/shared/dist/libs';
+import { getT } from '@ap/shared/dist/locales';
+import { IUser, TSessionExternal } from '@ap/shared/dist/types';
 
 const route = ROUTES.api.profile.substring(1);
 
@@ -38,13 +38,13 @@ export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @ApiOperation({ summary: getT().getProfileFields })
-  @ApiResponse({ status: HttpStatus.OK, type: ExternalUserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserExternalDto })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get()
   getProfile(@Req() req: TFastifyRequestWithToken): IUser {
-    return plainToInstance(ExternalUserDto, req.originalUser);
+    return plainToInstance(UserExternalDto, req.originalUser);
   }
 
   @ApiOperation({ summary: getT().updateProfile })
@@ -55,9 +55,9 @@ export class ProfileController {
   @Patch()
   async updateProfile(
     @Req() req: TFastifyRequestWithToken,
-    @Body() updateProfileDto: UpdateProfileDto,
+    @Body() profileUpdateDto: ProfileUpdateDto,
   ): Promise<void> {
-    await this.profileService.updateProfile(req.user.userId, updateProfileDto);
+    await this.profileService.updateProfile(req.user.userId, profileUpdateDto);
   }
 
   @ApiOperation({ summary: getT().updatePassword })
@@ -72,8 +72,7 @@ export class ProfileController {
   ): Promise<void> {
     await this.profileService.updatePassword(
       req.user.userId,
-      updatePasswordDto.newPassword,
-      updatePasswordDto.oldPassword,
+      updatePasswordDto,
     );
   }
 
@@ -89,7 +88,7 @@ export class ProfileController {
   ): Promise<void> {
     await this.profileService.changeEmailRequest(
       req.user.userId,
-      dhangeEmailRequestDto.newEmail,
+      dhangeEmailRequestDto,
     );
   }
 
@@ -105,24 +104,24 @@ export class ProfileController {
   ): Promise<void> {
     await this.profileService.changeEmailConfirm(
       req.user.userId,
-      changeEmailConfirmDto.code,
+      changeEmailConfirmDto,
     );
   }
 
   @ApiOperation({ summary: getT().getSessions })
-  @ApiResponse({ status: HttpStatus.OK, type: [ExternalSessionDto] })
+  @ApiResponse({ status: HttpStatus.OK, type: [SessionExternalDto] })
   @HttpCode(HttpStatus.OK)
   @Roles({ path: route, action: ERights.Reading })
   @UseGuards(JwtGuard, RolesGuard)
   @Get('sessions')
   async getSessions(
     @Req() req: TFastifyRequestWithToken,
-  ): Promise<TExternalSession[]> {
+  ): Promise<TSessionExternal[]> {
     const sessions = await this.profileService.getSessions(
       req.user.userId,
       req.user.sessionId,
     );
-    return plainToInstance(ExternalSessionDto, sessions);
+    return plainToInstance(SessionExternalDto, sessions);
   }
 
   @ApiOperation({ summary: getT().deleteSessions })
@@ -133,11 +132,11 @@ export class ProfileController {
   @Delete('sessions')
   async deleteSessions(
     @Req() req: TFastifyRequestWithToken,
-    @Body() queryItemsDto: QueryItemsDto<TExternalSession['id']>,
+    @Body() reqItemsDto: ReqItemsDto<TSessionExternal['id']>,
   ): Promise<void> {
     await this.profileService.deleteSessions(
       req.user.userId,
-      queryItemsDto.items,
+      reqItemsDto.items,
     );
   }
 }

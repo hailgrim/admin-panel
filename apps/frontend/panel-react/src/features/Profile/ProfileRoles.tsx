@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import Typography from '@mui/material/Typography';
 
-import { useAppSelector } from '@/shared/store/hooks';
+import { useAppSelector } from '@/app/store/hooks';
 import useTranslate from '@/shared/hooks/useTranslate';
 
 const ProfileRoles: FC = () => {

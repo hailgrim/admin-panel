@@ -11,7 +11,7 @@ import fastifyHelmet from '@fastify/helmet';
 import { AppModule } from './app.module';
 import { version, name } from '../package.json';
 import { cfg } from 'config/configuration';
-import { getT } from '@ap/shared/src/locales';
+import { getT } from '@ap/shared/dist/locales';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -37,14 +37,15 @@ async function bootstrap() {
       `https://${cfg.urls.panelReact}`,
       `https://${cfg.urls.panelVue}`,
     ],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true,
       whitelist: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
       errorHttpStatusCode: 400,
     }),
   );

@@ -1,8 +1,8 @@
-import { FC, FormEvent, useEffect, useRef } from 'react';
-import { UAParser } from 'ua-parser-js';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ComputerIcon from '@mui/icons-material/Computer';
-import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import { FC, FormEvent, useEffect, useRef } from "react";
+import { UAParser } from "ua-parser-js";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ComputerIcon from "@mui/icons-material/Computer";
+import SmartphoneIcon from "@mui/icons-material/Smartphone";
 import {
   Card,
   CardActions,
@@ -11,21 +11,21 @@ import {
   IconButton,
   styled,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import { useAppDispatch } from '@/shared/store/hooks';
-import { addAlert, setProfile } from '@/shared/store/main/main';
-import theme from '@/shared/lib/theme';
-import useRights from '@/shared/hooks/useRights';
-import profileApi from '@/shared/api/profile/profileApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import { TExternalSession } from '@ap/shared/src/types';
-import { getDateString, getErrorText, ROUTES } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import { useAppDispatch } from "@/app/store/hooks";
+import { addAlert, setProfile } from "@/app/store/main/main";
+import theme from "@/shared/lib/theme";
+import useRights from "@/shared/hooks/useRights";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import { TSessionExternal } from "@ap/shared/dist/types";
+import { getDateString, getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import profileApi from "@/entities/profile/api";
 
-const SessionForm: FC<{ session: TExternalSession; onDelete?: () => void }> = ({
+const SessionForm: FC<{ session: TSessionExternal; onDelete?: () => void }> = ({
   session,
   onDelete,
 }) => {
@@ -46,7 +46,7 @@ const SessionForm: FC<{ session: TExternalSession; onDelete?: () => void }> = ({
     if (removeReq.error) {
       dispatch(
         addAlert({
-          type: 'error',
+          type: "error",
           text: getErrorText(removeReq.error, lRef.current),
         })
       );
@@ -55,7 +55,7 @@ const SessionForm: FC<{ session: TExternalSession; onDelete?: () => void }> = ({
 
   useEffect(() => {
     if (removeReq.isSuccess) {
-      dispatch(addAlert({ type: 'success', text: tRef.current.success }));
+      dispatch(addAlert({ type: "success", text: tRef.current.success }));
       onDelete?.();
 
       if (session.current) {
@@ -72,9 +72,9 @@ const SessionForm: FC<{ session: TExternalSession; onDelete?: () => void }> = ({
             <>
               <SmartphoneIcon sx={{ mr: 1 }} />
               <Typography component="span" variant="body2">
-                {userAgent.current.device.vendor}{' '}
+                {userAgent.current.device.vendor}{" "}
                 {userAgent.current.device.model}
-                {','}&nbsp;
+                {","}&nbsp;
               </Typography>
             </>
           ) : (
@@ -82,17 +82,17 @@ const SessionForm: FC<{ session: TExternalSession; onDelete?: () => void }> = ({
               <ComputerIcon sx={{ mr: 1 }} />
               <Typography component="span" variant="body2">
                 {userAgent.current.os.name} {userAgent.current.os.version}
-                {','}&nbsp;
+                {","}&nbsp;
               </Typography>
             </>
           )}
           <Typography component="span" variant="body2">
             {userAgent.current.browser.name} {userAgent.current.browser.version}
-            {','}&nbsp;
+            {","}&nbsp;
           </Typography>
           <Typography component="span" variant="body2" sx={{ opacity: 0.8 }}>
             {session.ip}
-            {','}&nbsp;
+            {","}&nbsp;
           </Typography>
           <Typography
             component="span"

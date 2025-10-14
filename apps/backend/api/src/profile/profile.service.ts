@@ -6,11 +6,14 @@ import { QueueService } from 'src/queue/queue.service';
 import { generateCode, verifyHash } from 'libs/utils';
 import { cfg } from 'config/configuration';
 import {
+  IChangeEmailConfirm,
+  IChangeEmailRequest,
   IEmailCode,
   ISession,
-  TExternalSession,
-  TUpdateUser,
-} from '@ap/shared/src/types';
+  IUpdatePassword,
+  TSessionExternal,
+  TUserUpdate,
+} from '@ap/shared/dist/types';
 
 @Injectable()
 export class ProfileService {
@@ -20,45 +23,51 @@ export class ProfileService {
     private cacheService: CacheService,
   ) {}
 
-  async updateProfile(userId: string, fields: TUpdateUser): Promise<void> {
+  async updateProfile(userId: string, fields: TUserUpdate): Promise<void> {
     await this.usersService.updateFields(userId, fields);
   }
 
-  async updatePassword(
-    userId: string,
-    newPassword: string,
-    oldPassword?: string,
-  ): Promise<void> {
+  async updatePassword(userId: string, fields: IUpdatePassword): Promise<void> {
     const user = await this.usersService.getOneFlat(userId);
 
     if (
       user.password &&
-      (!oldPassword || !(await verifyHash(user.password, oldPassword)))
+      (!fields.oldPassword ||
+        !(await verifyHash(user.password, fields.oldPassword)))
     ) {
       throw new ConflictException();
     }
 
-    await this.usersService.updatePassword(userId, newPassword);
+    await this.usersService.updatePassword(userId, fields.newPassword);
   }
 
-  async changeEmailRequest(userId: string, newEmail: string): Promise<void> {
+  async changeEmailRequest(
+    userId: string,
+    fields: IChangeEmailRequest,
+  ): Promise<void> {
     const code = generateCode();
-
-    await this.usersService.updateChangeEmailCode(userId, code, newEmail);
+    await this.usersService.updateChangeEmailCode(
+      userId,
+      code,
+      fields.newEmail,
+    );
     this.queueService.sendEmail<IEmailCode>(
       { cmd: cfg.rmq.cmd.changeEmail },
-      { email: newEmail, code },
+      { email: fields.newEmail, code },
     );
   }
 
-  async changeEmailConfirm(userId: string, code: string): Promise<void> {
-    await this.usersService.updateEmailWithCode(userId, code);
+  async changeEmailConfirm(
+    userId: string,
+    fields: IChangeEmailConfirm,
+  ): Promise<void> {
+    await this.usersService.updateEmailWithCode(userId, fields.code);
   }
 
   async getSessions(
     userId: string,
     currentSessionId?: string,
-  ): Promise<TExternalSession[]> {
+  ): Promise<TSessionExternal[]> {
     const keys = await this.cacheService.keys(`sessions:${userId}:*`);
     const current = `sessions:${userId}:${currentSessionId}`;
     const sessions = await this.cacheService

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-const { href } = defineProps<{
+const props = defineProps<{
   title?: string
   href?: string
   icon?: string
   childs?: IMenuItem<string>[]
 }>()
+
 const route = useRoute()
 const router = useRouter()
 const selected = ref(false)
@@ -12,9 +13,9 @@ const selected = ref(false)
 watch(
   () => route.path,
   () => {
-    let result = Boolean(href)
+    let result = Boolean(props.href)
     const pathArr = route.path.split('/')
-    const linkArr = href?.split('/') || []
+    const linkArr = props.href?.split('/') || []
     linkArr.forEach((value, index) => {
       if (value !== pathArr[index]) {
         result = false

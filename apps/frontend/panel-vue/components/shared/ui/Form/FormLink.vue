@@ -4,7 +4,7 @@ defineProps<{
   text: string
 }>()
 defineEmits<{
-  click: [event: MouseEvent]
+  click: [value: MouseEvent]
 }>()
 </script>
 

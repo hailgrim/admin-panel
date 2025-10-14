@@ -18,7 +18,7 @@ export interface ISession {
   sign: string;
 }
 
-export type TExternalSession = Omit<ISession, 'sign'> & {
+export type TSessionExternal = Omit<ISession, 'sign'> & {
   id: string;
   current: boolean;
 };

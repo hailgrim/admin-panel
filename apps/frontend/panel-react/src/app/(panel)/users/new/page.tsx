@@ -1,8 +1,8 @@
-import { FC } from 'react';
-import { Metadata } from 'next/types';
+import { FC } from "react";
+import { Metadata } from "next/types";
 
-import NewUserPage from '@/views/Panel/Users/NewUserPage';
-import { getT } from '@ap/shared/src/locales';
+import { getT } from "@ap/shared/dist/locales";
+import CreateUserPage from "@/views/panel/users/CreateUserPage";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -14,6 +14,6 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const Page: FC = async () => {
   const t = getT();
-  return <NewUserPage h1={t.newUser} />;
+  return <CreateUserPage h1={t.newUser} />;
 };
 export default Page;

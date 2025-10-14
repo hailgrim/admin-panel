@@ -1,8 +1,8 @@
-import { FC } from 'react';
-import { Metadata } from 'next/types';
+import { FC } from "react";
+import { Metadata } from "next/types";
 
-import NewRolePage from '@/views/Panel/Roles/NewRolePage';
-import { getT } from '@ap/shared/src/locales';
+import { getT } from "@ap/shared/dist/locales";
+import CreateRolePage from "@/views/panel/roles/CreateRolePage";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -14,6 +14,6 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const Page: FC = async () => {
   const t = getT();
-  return <NewRolePage h1={t.newRole} />;
+  return <CreateRolePage h1={t.newRole} />;
 };
 export default Page;

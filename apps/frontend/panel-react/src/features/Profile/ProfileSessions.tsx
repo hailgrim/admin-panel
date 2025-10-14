@@ -1,21 +1,19 @@
-'use client';
+import { FC, useEffect, useState } from "react";
+import Skeleton from "@mui/material/Skeleton";
 
-import { FC, useEffect, useState } from 'react';
-import Skeleton from '@mui/material/Skeleton';
-
-import SessionForm from '@/features/Profile/SessionForm';
-import { addAlert } from '@/shared/store/main/main';
-import { useAppDispatch } from '@/shared/store/hooks';
-import profileApi from '@/shared/api/profile/profileApi';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { TExternalSession } from '@ap/shared/src/types';
-import { getErrorText } from '@ap/shared/src/libs';
+import SessionForm from "@/features/profile/SessionForm";
+import { addAlert } from "@/app/store/main/main";
+import { useAppDispatch } from "@/app/store/hooks";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import { TSessionExternal } from "@ap/shared/dist/types";
+import { getErrorText } from "@ap/shared/dist/libs";
+import profileApi from "@/entities/profile/api";
 
 const ProfileSessions: FC = () => {
   const dispatch = useAppDispatch();
   const lRef = useLanguageRef();
   const { data, isLoading, error } = profileApi.useGetSessionsQuery();
-  const [sessions, setSessions] = useState<TExternalSession[]>();
+  const [sessions, setSessions] = useState<TSessionExternal[]>();
 
   useEffect(() => {
     setSessions(
@@ -28,7 +26,7 @@ const ProfileSessions: FC = () => {
     if (error) {
       dispatch(
         addAlert({
-          type: 'error',
+          type: "error",
           text: getErrorText(error, lRef.current),
         })
       );

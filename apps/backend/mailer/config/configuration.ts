@@ -1,5 +1,5 @@
-import { DEV } from '@ap/shared/src/libs';
-import { readSecret } from 'libs/utils';
+import { DEV } from '@ap/shared/dist/libs';
+import { readSecret } from '@ap/shared/dist/server';
 
 export const cfg = {
   mode: process.env.NODE_ENV || DEV,

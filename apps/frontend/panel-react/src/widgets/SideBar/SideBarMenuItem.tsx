@@ -1,16 +1,16 @@
-import { FC, MouseEventHandler, ReactNode, useMemo, useState } from 'react';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Divider from '@mui/material/Divider';
-import Collapse from '@mui/material/Collapse';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import { usePathname, useRouter } from 'next/navigation';
+import { FC, MouseEventHandler, ReactNode, useMemo, useState } from "react";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Divider from "@mui/material/Divider";
+import Collapse from "@mui/material/Collapse";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import { usePathname, useRouter } from "next/navigation";
 
-import { IMenuItem } from '@ap/shared/src/types';
-import { checkActiveLink } from '@ap/shared/src/libs';
+import { IMenuItem } from "@ap/shared/dist/types";
+import { checkActiveLink } from "@ap/shared/dist/libs";
 
 const SideBarMenuItem: FC<IMenuItem<ReactNode>> = ({
   href,
@@ -38,8 +38,8 @@ const SideBarMenuItem: FC<IMenuItem<ReactNode>> = ({
 
   const selected = useMemo(() => {
     let result = Boolean(href);
-    const pathArr = pathname.split('/');
-    const linkArr = href?.split('/') || [];
+    const pathArr = pathname.split("/");
+    const linkArr = href?.split("/") || [];
 
     linkArr.forEach((value, index) => {
       if (value != pathArr[index]) {

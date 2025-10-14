@@ -1,10 +1,11 @@
-import { FC } from 'react';
-import { Metadata } from 'next/types';
+import { FC } from "react";
+import { Metadata } from "next/types";
+import { notFound } from "next/navigation";
 
-import usersService from '@/shared/api/users/usersService';
-import UsersPage from '@/views/Panel/Users/UsersPage';
-import { IAppPage } from '@/app/types';
-import { getT } from '@ap/shared/src/locales';
+import { IAppPage } from "@/app/types";
+import { getT } from "@ap/shared/dist/locales";
+import ListUsersPage from "@/views/panel/users/ListUsersPage";
+import usersService from "@/entities/user/service";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -16,13 +17,12 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const Page: FC<IAppPage> = async ({ searchParams }) => {
   const t = getT();
-  const { reqPage, reqLimit } = await searchParams;
-  const { data } = await usersService.getList({
-    reqPage: Number(reqPage),
-    reqLimit: Number(reqLimit),
-    reqCount: true,
-  });
+  const { data } = await usersService.getList(await searchParams);
 
-  return <UsersPage data={data} h1={t.users} />;
+  if (data) {
+    return <ListUsersPage data={data} h1={t.users} />;
+  }
+
+  return notFound();
 };
 export default Page;

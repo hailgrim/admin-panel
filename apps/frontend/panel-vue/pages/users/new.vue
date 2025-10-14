@@ -6,8 +6,10 @@ definePageMeta({
   title: 'newUser',
   description: 'newUser',
 })
+
+const router = useRouter()
 </script>
 
 <template>
-  <CreateUserForm />
+  <UserCreate @create="router.push(ROUTES.ui.user($event.id))" />
 </template>

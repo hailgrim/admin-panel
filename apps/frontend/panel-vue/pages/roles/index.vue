@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import rolesApi from '~/components/entities/role/rolesApi'
+
 definePageMeta({
   middleware: ['auth'],
   layout: 'panel',
@@ -13,30 +15,28 @@ const reqPage = ref(Number(route.query.reqPage) || 1)
 const reqLimit = ref(Number(route.query.reqLimit) || 25)
 const { data, execute } = rolesApi.getList({ reqPage, reqLimit, reqCount: true })
 
-if (import.meta.server) {
-  await execute()
+function updateHandler(newMeta: IResListMeta<IRole>) {
+  const newParams = createSearchParams({
+    data: resListMetaToReq<IRole>(newMeta),
+    exclude: ['total'],
+    searchParams: route.fullPath.split('?')[1],
+  })
+  router.push('?' + newParams.toString())
 }
 
-watch(
-  reqPage,
-  () => {
-    router.push({ query: { ...route.query, reqPage: reqPage.value } })
-  },
-)
+await execute()
 
-watch(
-  reqLimit,
-  () => {
-    router.push({ query: { ...route.query, reqLimit: reqLimit.value } })
-  },
-)
+if (data.value === null) {
+  showError({
+    statusCode: 404,
+  })
+}
 </script>
 
 <template>
-  <RolesList
-    v-model:page="reqPage"
-    v-model:limit="reqLimit"
-    :count="data?.count"
-    :rows="data?.rows"
+  <RoleList
+    :initial-rows="data?.rows"
+    :initial-meta="data?.meta"
+    @meta-update="updateHandler($event)"
   />
 </template>

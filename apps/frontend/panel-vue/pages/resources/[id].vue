@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import resourcesApi from '~/components/entities/resource/resourcesApi'
+
 definePageMeta({
   middleware: ['auth'],
   layout: 'panel',
@@ -8,8 +10,10 @@ definePageMeta({
 })
 
 const route = useRoute()
+const router = useRouter()
 const id = String(route.params.id)
 const { data, execute } = resourcesApi.getOne(id)
+
 await execute()
 
 if (data.value === null) {
@@ -20,8 +24,9 @@ if (data.value === null) {
 </script>
 
 <template>
-  <UpdateResourceForm
+  <ResourceUpdate
     v-if="data"
-    :resource="data"
+    :data="data"
+    @delete="router.push(ROUTES.ui.resources)"
   />
 </template>

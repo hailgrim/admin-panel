@@ -9,24 +9,22 @@ import {
   wrongValue,
 } from './app.setup';
 import {
-  IGetListResponse,
-  IQueryItems,
-  IResource,
+  IReqItems,
   IRights,
   IRole,
-  TCreateRole,
-  TGetListRequest,
-  TGetRoles,
-  TUpdateRole,
-} from '@ap/shared/src/types';
-import { ROUTES } from '@ap/shared/src/libs';
+  TRoleCreate,
+  TRoleReqList,
+  TRoleUpdate,
+  TRoleResList,
+} from '@ap/shared/dist/types';
+import { ROUTES } from '@ap/shared/dist/libs';
 
 const runRolesTests = () => {
   describe('Roles', () => {
     let entity: IRole;
 
     describe('Create', () => {
-      const createEntity: TCreateRole = {
+      const createEntity: TRoleCreate = {
         name: 'Test',
         description: 'Test entity',
         enabled: true,
@@ -94,9 +92,9 @@ const runRolesTests = () => {
             reqLimit: 1,
             reqPage: 1,
             reqCount: true,
-          } satisfies TGetListRequest<TGetRoles>)
+          } satisfies TRoleReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IRole>);
+          .then((res) => res.body as TRoleResList);
 
         expect(getListResBody).toHaveProperty('count', 3);
         expect(getListResBody).toHaveProperty('page', 1);
@@ -109,9 +107,9 @@ const runRolesTests = () => {
             reqLimit: 1,
             reqPage: 1,
             name: 'te',
-          } satisfies TGetListRequest<TGetRoles>)
+          } satisfies TRoleReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IRole>);
+          .then((res) => res.body as TRoleResList);
 
         expect(getListResBody.rows).toHaveProperty('length', 1);
         expect(getListResBody.rows[0]).toHaveProperty('name', entity.name);
@@ -180,7 +178,7 @@ const runRolesTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.role(wrongId))
           .set('Cookie', adminCookies)
-          .send({ enabled: true } satisfies TUpdateRole)
+          .send({ enabled: true } satisfies TRoleUpdate)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -190,7 +188,7 @@ const runRolesTests = () => {
           .set('Cookie', adminCookies)
           .send({
             name: entity.name + entity.name,
-          } satisfies TUpdateRole)
+          } satisfies TRoleUpdate)
           .expect(HttpStatus.NO_CONTENT);
 
         entity.name = entity.name + entity.name;
@@ -227,7 +225,7 @@ const runRolesTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.roleRights(wrongId))
           .set('Cookie', adminCookies)
-          .send({ items: [] } satisfies IQueryItems<IRights>)
+          .send({ items: [] } satisfies IReqItems<IRights>)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -236,7 +234,7 @@ const runRolesTests = () => {
           .get(ROUTES.api.resources)
           .set('Cookie', adminCookies)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IResource>);
+          .then((res) => res.body as TRoleResList);
 
         const resource = getListResBody.rows[0];
 
@@ -254,7 +252,7 @@ const runRolesTests = () => {
                 deleting: false,
               },
             ],
-          } satisfies IQueryItems<IRights>)
+          } satisfies IReqItems<IRights>)
           .expect(HttpStatus.NO_CONTENT);
 
         entity.name = entity.name + entity.name;
@@ -289,13 +287,13 @@ const runRolesTests = () => {
       it('Incorrect', async () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.roles)
-          .send({ items: [entity.id] } satisfies IQueryItems<IRole['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IRole['id']>)
           .expect(HttpStatus.UNAUTHORIZED);
 
         await request(app.getHttpServer())
           .delete(ROUTES.api.roles)
           .set('Cookie', adminCookies)
-          .send({ items: [wrongId] } satisfies IQueryItems<IRole['id']>)
+          .send({ items: [wrongId] } satisfies IReqItems<IRole['id']>)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -303,7 +301,7 @@ const runRolesTests = () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.roles)
           .set('Cookie', adminCookies)
-          .send({ items: [entity.id] } satisfies IQueryItems<IRole['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IRole['id']>)
           .expect(HttpStatus.NO_CONTENT);
 
         await request(app.getHttpServer())

@@ -1,17 +1,22 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormField from '@/shared/ui/Form/FormField';
-import FormButton from '@/shared/ui/Form/FormButton';
-import CustomModal from '@/shared/ui/CustomModal/CustomModal';
-import profileApi from '@/shared/api/profile/profileApi';
-import useRights from '@/shared/hooks/useRights';
-import { useAppDispatch, useAppSelector } from '@/shared/store/hooks';
-import { addAlert } from '@/shared/store/main/main';
-import ChangeEmailConfirmForm from './ChangeEmailConfirmForm';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import { EMAIL_REGEX, getErrorText, ROUTES, testString } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormField from "@/shared/ui/Form/FormField";
+import FormButton from "@/shared/ui/Form/FormButton";
+import CustomModal from "@/shared/ui/CustomModal/CustomModal";
+import useRights from "@/shared/hooks/useRights";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { addAlert } from "@/app/store/main/main";
+import ChangeEmailConfirmForm from "./ChangeEmailConfirmForm";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import {
+  EMAIL_REGEX,
+  getErrorText,
+  ROUTES,
+  testString,
+} from "@ap/shared/dist/libs";
+import profileApi from "@/entities/profile/api";
 
 const ChangeEmailRequestForm: FC = () => {
   const dispatch = useAppDispatch();
@@ -22,7 +27,7 @@ const ChangeEmailRequestForm: FC = () => {
     profileApi.useChangeEmailRequestMutation();
   const rights = useRights(ROUTES.api.profile);
   const profile = useAppSelector((store) => store.main.profile);
-  const [email, setEmail] = useState(profile?.email || '');
+  const [email, setEmail] = useState(profile?.email || "");
   const emailIsValid = useMemo(() => testString(EMAIL_REGEX, email), [email]);
   const onClose = useCallback(() => setConfirmModal(false), []);
 
@@ -31,12 +36,12 @@ const ChangeEmailRequestForm: FC = () => {
 
     if (emailIsValid) {
       if (email === profile?.email) {
-        dispatch(addAlert({ type: 'warning', text: t.nothingToUpdate }));
+        dispatch(addAlert({ type: "warning", text: t.nothingToUpdate }));
       } else {
         changeEmailRequest({ newEmail: email });
       }
     } else {
-      dispatch(addAlert({ type: 'warning', text: t.unknownError }));
+      dispatch(addAlert({ type: "warning", text: t.unknownError }));
     }
   };
 
@@ -44,7 +49,7 @@ const ChangeEmailRequestForm: FC = () => {
     if (error) {
       dispatch(
         addAlert({
-          type: 'error',
+          type: "error",
           text: getErrorText(error, lRef.current),
         })
       );
@@ -68,7 +73,7 @@ const ChangeEmailRequestForm: FC = () => {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           helperText={t.emailValidation}
-          color={emailIsValid ? 'success' : 'error'}
+          color={emailIsValid ? "success" : "error"}
           error={!emailIsValid && email.length > 0}
           disabled={isLoading}
         />
@@ -82,10 +87,7 @@ const ChangeEmailRequestForm: FC = () => {
         </FormButton>
       </FormBase>
       <CustomModal open={confirmModal} title={t.changeEmail} onClose={onClose}>
-        <ChangeEmailConfirmForm
-          email={email}
-          onClose={onClose}
-        />
+        <ChangeEmailConfirmForm email={email} onClose={onClose} />
       </CustomModal>
     </>
   );

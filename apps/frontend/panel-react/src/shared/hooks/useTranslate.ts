@@ -1,5 +1,5 @@
-import { getT } from '@ap/shared/src/locales';
-import { useAppSelector } from '../store/hooks';
+import { getT } from "@ap/shared/dist/locales";
+import { useAppSelector } from "../../app/store/hooks";
 
 const useTranslate = () => {
   const language = useAppSelector((store) => store.main.language);

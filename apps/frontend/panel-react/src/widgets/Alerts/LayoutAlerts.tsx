@@ -1,19 +1,19 @@
-import Snackbar from '@mui/material/Snackbar';
-import { FC } from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
+import Snackbar from "@mui/material/Snackbar";
+import { FC } from "react";
+import { styled } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
 
-import theme from '@/shared/lib/theme';
-import { deleteAlert } from '@/shared/store/main/main';
-import { useAppDispatch, useAppSelector } from '@/shared/store/hooks';
+import theme from "@/shared/lib/theme";
+import { deleteAlert } from "@/app/store/main/main";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 
 const LayoutAlerts: FC = () => {
   const dispatch = useAppDispatch();
   const alerts = useAppSelector((state) => state.main.alerts);
 
   const closeHandler = (id: number, delay?: boolean, reason?: string) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
@@ -28,7 +28,7 @@ const LayoutAlerts: FC = () => {
           open={alert.deleted !== true}
           autoHideDuration={5000}
           sx={{ py: 1 }}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           onClose={(_, reason) => closeHandler(alert.id, true, reason)}
           onTransitionEnd={() => alert.deleted && closeHandler(alert.id)}
         >
@@ -36,7 +36,7 @@ const LayoutAlerts: FC = () => {
             onClose={() => closeHandler(alert.id, true)}
             severity={alert.type}
             variant="filled"
-            sx={{ whiteSpace: 'break-spaces' }}
+            sx={{ whiteSpace: "break-spaces" }}
           >
             {alert.text}
           </Alert>
@@ -56,6 +56,7 @@ const AlertsContainer = styled(Box)`
   max-width: 300px;
   padding-inline: ${theme.spacing(2)};
   padding-block: ${theme.spacing(1)};
+  z-index: 9999;
   & > .MuiSnackbar-root {
     position: relative;
     bottom: auto;

@@ -2,11 +2,11 @@ import { FC, MouseEventHandler, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import FormLink from '@/shared/ui/Form/FormLink';
-import { useAppDispatch } from '@/shared/store/hooks';
-import { setProfile } from '@/shared/store/main/main';
+import { useAppDispatch } from '@/app/store/hooks';
+import { setProfile } from '@/app/store/main/main';
 import useTranslate from '@/shared/hooks/useTranslate';
-import { IUser, IWindowMessage } from '@ap/shared/src/types';
-import { getGoogleSignInUrl, ROUTES } from '@ap/shared/src/libs';
+import { IUser, IWindowMessage } from '@ap/shared/dist/types';
+import { getGoogleSignInUrl, ROUTES } from '@ap/shared/dist/libs';
 
 const SignInGoogleLink: FC = () => {
   const t = useTranslate();

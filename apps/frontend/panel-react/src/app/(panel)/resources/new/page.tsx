@@ -1,8 +1,8 @@
-import { FC } from 'react';
-import { Metadata } from 'next/types';
+import { FC } from "react";
+import { Metadata } from "next/types";
 
-import NewResourcePage from '@/views/Panel/Resources/NewResourcePage';
-import { getT } from '@ap/shared/src/locales';
+import CreateResourcePage from "@/views/panel/resources/CreateResourcePage";
+import { getT } from "@ap/shared/dist/locales";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const t = getT();
@@ -14,6 +14,6 @@ export const generateMetadata = async (): Promise<Metadata> => {
 
 const Page: FC = async () => {
   const t = getT();
-  return <NewResourcePage h1={t.newResource} />;
+  return <CreateResourcePage h1={t.newResource} />;
 };
 export default Page;

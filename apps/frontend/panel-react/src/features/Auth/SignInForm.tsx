@@ -1,24 +1,24 @@
-import { FC, FormEvent, useEffect, useRef, useState } from 'react';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { FC, FormEvent, useEffect, useRef, useState } from "react";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormField from '@/shared/ui/Form/FormField';
-import FormCheckbox from '@/shared/ui/Form/FormCheckbox';
-import FormPassword from '@/shared/ui/Form/FormPassword';
-import FormButton from '@/shared/ui/Form/FormButton';
-import FormLink from '@/shared/ui/Form/FormLink';
-import FormAlert from '@/shared/ui/Form/FormAlert';
-import CustomModal from '@/shared/ui/CustomModal/CustomModal';
-import VerifyUserForm from './VerifyUserForm';
-import { useAppDispatch } from '@/shared/store/hooks';
-import authApi from '@/shared/api/auth/authApi';
-import { setProfile } from '@/shared/store/main/main';
-import SignInGoogleLink from './SignInGoogleLink';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useTranslate from '@/shared/hooks/useTranslate';
-import { getErrorText, ROUTES } from '@ap/shared/src/libs';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormField from "@/shared/ui/Form/FormField";
+import FormCheckbox from "@/shared/ui/Form/FormCheckbox";
+import FormPassword from "@/shared/ui/Form/FormPassword";
+import FormButton from "@/shared/ui/Form/FormButton";
+import FormLink from "@/shared/ui/Form/FormLink";
+import FormAlert from "@/shared/ui/Form/FormAlert";
+import CustomModal from "@/shared/ui/CustomModal/CustomModal";
+import VerifyUserForm from "./VerifyUserForm";
+import { useAppDispatch } from "@/app/store/hooks";
+import { setProfile } from "@/app/store/main/main";
+import SignInGoogleLink from "./SignInGoogleLink";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useTranslate from "@/shared/hooks/useTranslate";
+import { getErrorText, ROUTES } from "@ap/shared/dist/libs";
+import authApi from "@/entities/auth/api";
 
 const SignInForm: FC = () => {
   const router = useRouter();
@@ -27,13 +27,12 @@ const SignInForm: FC = () => {
   const lRef = useLanguageRef();
   const tRef = useTranslateRef();
   const t = useTranslate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [verifyModal, setVerifyModal] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
-  const [signIn, { data, error, isFetching }] =
-    authApi.useLazySignInQuery();
+  const [signIn, { data, error, isFetching }] = authApi.useLazySignInQuery();
   const timeout = useRef<NodeJS.Timeout>(undefined);
 
   const submitHandler = (event?: FormEvent<HTMLFormElement>) => {
@@ -73,7 +72,7 @@ const SignInForm: FC = () => {
     if (data) {
       dispatch(setProfile(data));
       router.push(
-        decodeURIComponent(searchParams.get('return') || ROUTES.ui.home)
+        decodeURIComponent(searchParams.get("return") || ROUTES.ui.home)
       );
     }
   }, [data, dispatch, router, searchParams]);
@@ -121,10 +120,10 @@ const SignInForm: FC = () => {
         >
           {t.signIn}
         </FormButton>
-        <FormLink href={ROUTES.ui.signUp} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.signUp} mui={{ align: "center" }}>
           {t.signUpText}
         </FormLink>
-        <FormLink href={ROUTES.ui.forgotPassword} mui={{ align: 'center' }}>
+        <FormLink href={ROUTES.ui.forgotPassword} mui={{ align: "center" }}>
           {t.forgotPasswordText}
         </FormLink>
         <SignInGoogleLink />

@@ -7,7 +7,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 
 import { MAIL_SERVER } from 'libs/constants';
-import { IQueuePattern } from '@ap/shared/src/types';
+import { IQueuePattern } from '@ap/shared/dist/types';
 
 @Injectable()
 export class QueueService {

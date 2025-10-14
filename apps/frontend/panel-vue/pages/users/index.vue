@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import usersApi from '~/components/entities/user/usersApi'
+
 definePageMeta({
   middleware: ['auth'],
   layout: 'panel',
@@ -9,34 +11,32 @@ definePageMeta({
 
 const router = useRouter()
 const route = useRoute()
-const reqPage = ref(Number(route.query.reqPage))
-const reqLimit = ref(Number(route.query.reqLimit))
+const reqPage = ref(Number(route.query.reqPage) || 1)
+const reqLimit = ref(Number(route.query.reqLimit) || 25)
 const { data, execute } = usersApi.getList({ reqPage, reqLimit, reqCount: true })
 
-if (import.meta.server) {
-  await execute()
+function updateHandler(newMeta: IResListMeta<IUser>) {
+  const newParams = createSearchParams({
+    data: resListMetaToReq<IUser>(newMeta),
+    exclude: ['total'],
+    searchParams: route.fullPath.split('?')[1],
+  })
+  router.push('?' + newParams.toString())
 }
 
-watch(
-  reqPage,
-  () => {
-    router.push({ query: { ...route.query, reqPage: reqPage.value } })
-  },
-)
+await execute()
 
-watch(
-  reqLimit,
-  () => {
-    router.push({ query: { ...route.query, reqLimit: reqLimit.value } })
-  },
-)
+if (data.value === null) {
+  showError({
+    statusCode: 404,
+  })
+}
 </script>
 
 <template>
-  <UsersList
-    v-model:page="reqPage"
-    v-model:limit="reqLimit"
-    :count="data?.count"
-    :rows="data?.rows"
+  <UserList
+    :initial-rows="data?.rows"
+    :initial-meta="data?.meta"
+    @meta-update="updateHandler($event)"
   />
 </template>

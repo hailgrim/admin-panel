@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from 'vuetify'
 
+import authApi from '~/components/entities/auth/authApi'
+
 const { t, locale } = useI18n()
 const email = ref('')
 const emailIsValid = (value: string) =>

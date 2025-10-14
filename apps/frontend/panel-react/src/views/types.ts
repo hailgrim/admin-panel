@@ -1,4 +1,3 @@
-export interface IPage<T = unknown> {
+export type TPage<T = void> = {
   h1?: string;
-  data?: T | null;
-}
+} & ([T] extends [void] ? { data?: never } : { data: T });

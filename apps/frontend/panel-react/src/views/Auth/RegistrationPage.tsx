@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { FC } from 'react';
+import { FC } from "react";
 
-import AuthLayout from '@/views/AuthLayout';
-import SignUpForm from '@/features/Auth/SignUpForm';
-import { IPage } from '../types';
+import SignUpForm from "@/features/auth/SignUpForm";
+import { TPage } from "../types";
+import AuthLayout from "./AuthLayout";
 
-const RegistrationPage: FC<IPage> = ({ h1 }) => {
+const RegistrationPage: FC<TPage> = ({ h1 }) => {
   return (
     <AuthLayout h1={h1}>
       <SignUpForm />

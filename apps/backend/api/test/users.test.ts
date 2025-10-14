@@ -9,24 +9,22 @@ import {
   wrongValue,
 } from './app.setup';
 import {
-  IGetListResponse,
-  IQueryItems,
-  IRole,
+  IReqItems,
   IUser,
   IUsersRoles,
-  TCreateUser,
-  TGetListRequest,
-  TGetUsers,
-  TUpdateUser,
-} from '@ap/shared/src/types';
-import { ROUTES } from '@ap/shared/src/libs';
+  TUserCreate,
+  TUserReqList,
+  TUserResList,
+  TUserUpdate,
+} from '@ap/shared/dist/types';
+import { ROUTES } from '@ap/shared/dist/libs';
 
 const runUsersTests = () => {
   describe('Users', () => {
     let entity: IUser;
 
     describe('Create', () => {
-      const createEntity: TCreateUser = {
+      const createEntity: TUserCreate = {
         name: 'Test',
         email: 'test0@mail.com',
         password: '!Q1q2w3e4rr4e3w2q1Q!',
@@ -90,9 +88,9 @@ const runUsersTests = () => {
             reqLimit: 1,
             reqPage: 1,
             reqCount: true,
-          } satisfies TGetListRequest<TGetUsers>)
+          } satisfies TUserReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IUser>);
+          .then((res) => res.body as TUserResList);
 
         expect(getListResBody).toHaveProperty('count', 3);
         expect(getListResBody).toHaveProperty('page', 1);
@@ -105,9 +103,9 @@ const runUsersTests = () => {
             reqLimit: 1,
             reqPage: 1,
             email: 'test0',
-          } satisfies TGetListRequest<TGetUsers>)
+          } satisfies TUserReqList)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IUser>);
+          .then((res) => res.body as TUserResList);
 
         expect(getListResBody.rows).toHaveProperty('length', 1);
         expect(getListResBody.rows[0]).toHaveProperty('email', entity.email);
@@ -174,7 +172,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.user(wrongId))
           .set('Cookie', adminCookies)
-          .send({ enabled: true } satisfies TUpdateUser)
+          .send({ enabled: true } satisfies TUserUpdate)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -184,7 +182,7 @@ const runUsersTests = () => {
           .set('Cookie', adminCookies)
           .send({
             name: entity.name + entity.name,
-          } satisfies TUpdateUser)
+          } satisfies TUserUpdate)
           .expect(HttpStatus.NO_CONTENT);
 
         entity.name = entity.name + entity.name;
@@ -221,7 +219,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .patch(ROUTES.api.userRoles(wrongId))
           .set('Cookie', adminCookies)
-          .send({ items: [] } satisfies IQueryItems<IUsersRoles>)
+          .send({ items: [] } satisfies IReqItems<IUsersRoles>)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -230,7 +228,7 @@ const runUsersTests = () => {
           .get(ROUTES.api.roles)
           .set('Cookie', adminCookies)
           .expect(HttpStatus.OK)
-          .then((res) => res.body as IGetListResponse<IRole>);
+          .then((res) => res.body as TUserResList);
 
         const role = getListResBody.rows[1];
 
@@ -239,7 +237,7 @@ const runUsersTests = () => {
           .set('Cookie', adminCookies)
           .send({
             items: [{ roleId: role.id, userId: entity.id }],
-          } satisfies IQueryItems<IUsersRoles>)
+          } satisfies IReqItems<IUsersRoles>)
           .expect(HttpStatus.NO_CONTENT);
 
         entity.name = entity.name + entity.name;
@@ -267,13 +265,13 @@ const runUsersTests = () => {
       it('Incorrect', async () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.users)
-          .send({ items: [entity.id] } satisfies IQueryItems<IUser['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IUser['id']>)
           .expect(HttpStatus.UNAUTHORIZED);
 
         await request(app.getHttpServer())
           .delete(ROUTES.api.users)
           .set('Cookie', adminCookies)
-          .send({ items: [wrongId] } satisfies IQueryItems<IUser['id']>)
+          .send({ items: [wrongId] } satisfies IReqItems<IUser['id']>)
           .expect(HttpStatus.NOT_FOUND);
       });
 
@@ -281,7 +279,7 @@ const runUsersTests = () => {
         await request(app.getHttpServer())
           .delete(ROUTES.api.users)
           .set('Cookie', adminCookies)
-          .send({ items: [entity.id] } satisfies IQueryItems<IUser['id']>)
+          .send({ items: [entity.id] } satisfies IReqItems<IUser['id']>)
           .expect(HttpStatus.NO_CONTENT);
 
         await request(app.getHttpServer())

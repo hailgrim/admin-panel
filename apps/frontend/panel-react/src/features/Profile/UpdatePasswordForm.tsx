@@ -1,21 +1,21 @@
-import { FC, FormEvent, useEffect, useMemo, useState } from 'react';
+import { FC, FormEvent, useEffect, useMemo, useState } from "react";
 
-import FormBase from '@/shared/ui/Form/FormBase';
-import FormButton from '@/shared/ui/Form/FormButton';
-import useRights from '@/shared/hooks/useRights';
-import { useAppDispatch } from '@/shared/store/hooks';
-import { addAlert } from '@/shared/store/main/main';
-import FormPassword from '@/shared/ui/Form/FormPassword';
-import profileApi from '@/shared/api/profile/profileApi';
-import useTranslate from '@/shared/hooks/useTranslate';
-import useTranslateRef from '@/shared/hooks/useTranslateRef';
-import useLanguageRef from '@/shared/hooks/useLanguageRef';
+import FormBase from "@/shared/ui/Form/FormBase";
+import FormButton from "@/shared/ui/Form/FormButton";
+import useRights from "@/shared/hooks/useRights";
+import { useAppDispatch } from "@/app/store/hooks";
+import { addAlert } from "@/app/store/main/main";
+import FormPassword from "@/shared/ui/Form/FormPassword";
+import useTranslate from "@/shared/hooks/useTranslate";
+import useTranslateRef from "@/shared/hooks/useTranslateRef";
+import useLanguageRef from "@/shared/hooks/useLanguageRef";
 import {
   getErrorText,
   PASSWORD_REGEX,
   ROUTES,
   testString,
-} from '@ap/shared/src/libs';
+} from "@ap/shared/dist/libs";
+import profileApi from "@/entities/profile/api";
 
 const UpdatePasswordForm: FC = () => {
   const dispatch = useAppDispatch();
@@ -25,8 +25,8 @@ const UpdatePasswordForm: FC = () => {
   const [update, { isSuccess, isLoading, error }] =
     profileApi.useUpdatePasswordMutation();
   const rights = useRights(ROUTES.api.profile);
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const passwordIsValid = useMemo(
     () => testString(PASSWORD_REGEX, newPassword),
     [newPassword]
@@ -37,12 +37,12 @@ const UpdatePasswordForm: FC = () => {
 
     if (passwordIsValid) {
       if (oldPassword === newPassword) {
-        dispatch(addAlert({ type: 'warning', text: t.nothingToUpdate }));
+        dispatch(addAlert({ type: "warning", text: t.nothingToUpdate }));
       } else {
         update({ oldPassword, newPassword });
       }
     } else {
-      dispatch(addAlert({ type: 'warning', text: t.unknownError }));
+      dispatch(addAlert({ type: "warning", text: t.unknownError }));
     }
   };
 
@@ -50,7 +50,7 @@ const UpdatePasswordForm: FC = () => {
     if (error) {
       dispatch(
         addAlert({
-          type: 'error',
+          type: "error",
           text: getErrorText(error, lRef.current),
         })
       );
@@ -59,7 +59,7 @@ const UpdatePasswordForm: FC = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      dispatch(addAlert({ type: 'success', text: tRef.current.success }));
+      dispatch(addAlert({ type: "success", text: tRef.current.success }));
     }
   }, [isSuccess, dispatch, tRef]);
 
@@ -78,7 +78,7 @@ const UpdatePasswordForm: FC = () => {
         value={newPassword}
         onChange={(event) => setNewPassword(event.target.value)}
         helperText={t.passwordValidation}
-        color={passwordIsValid ? 'success' : 'error'}
+        color={passwordIsValid ? "success" : "error"}
         error={!passwordIsValid && newPassword.length > 0}
       />
       <FormButton

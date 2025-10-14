@@ -1,7 +1,7 @@
 export interface IAlert {
   id: number;
   text?: string;
-  type?: 'error' | 'warning' | 'success';
+  type?: "error" | "warning" | "success";
   deleted?: boolean;
 }
 
@@ -10,9 +10,9 @@ export interface IWindowMessage<T = unknown> {
   payload: T;
 }
 
-export interface IMenuItem<T = unknown> {
+export interface IMenuItem<I = unknown> {
   title?: string;
   href?: string;
-  icon?: T;
-  childs?: IMenuItem<T>[];
+  icon?: I;
+  childs?: IMenuItem<I>[];
 }

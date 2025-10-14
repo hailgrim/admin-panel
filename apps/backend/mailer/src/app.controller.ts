@@ -4,7 +4,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { EmailCodeDto } from './dto/email-code.dto';
 import { cfg } from 'config/configuration';
-import { IQueuePattern } from '@ap/shared/src/types';
+import { IQueuePattern } from '@ap/shared/dist/types';
 
 @Controller()
 export class AppController {

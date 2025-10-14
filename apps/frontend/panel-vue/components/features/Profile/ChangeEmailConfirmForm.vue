@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { SubmitEventPromise } from 'vuetify'
 
-const { email } = defineProps<{
+import profileApi from '~/components/entities/profile/profileApi'
+
+const props = defineProps<{
   email: string
 }>()
 const emit = defineEmits<{
@@ -12,7 +14,7 @@ const { t, locale } = useI18n()
 const mainStore = useMainStore()
 const code = ref('')
 const codeIsValid = (value: string) =>
-  value.length > 0 || `${t('codeFromEmail')} (${email})`
+  value.length > 0 || `${t('codeFromEmail')} (${props.email})`
 const { status, error, execute } = profileApi.changeEmailConfirm({ code })
 const rights = useRights(ROUTES.api.profile)
 
@@ -48,7 +50,7 @@ watch(status, () => {
     emit('close')
 
     if (mainStore.profile) {
-      mainStore.setProfile({ ...mainStore.profile, email })
+      mainStore.setProfile({ ...mainStore.profile, email: props.email })
     }
   }
 })
