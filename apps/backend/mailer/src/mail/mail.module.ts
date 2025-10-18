@@ -3,9 +3,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import * as nodemailer from 'nodemailer';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { cfg } from 'config/configuration';
+import { MailController } from './mail.controller';
+import { MailService } from './mail.service';
 
 @Module({
   imports: [
@@ -52,7 +52,7 @@ import { cfg } from 'config/configuration';
       },
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [MailController],
+  providers: [MailService],
 })
-export class AppModule {}
+export class MailModule {}

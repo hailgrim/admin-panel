@@ -26,6 +26,6 @@ import { cfg } from 'config/configuration';
     },
     QueueService,
   ],
-  exports: [QueueService],
+  exports: [QueueService, MAIL_SERVER],
 })
 export class QueueModule {}

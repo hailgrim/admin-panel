@@ -9,12 +9,14 @@ import { RolesModule } from './roles/roles.module';
 import { ResourcesModule } from './resources/resources.module';
 import { ThrottlerBehindProxyGuard } from './auth/throttler-behind-proxy.guard';
 import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60, limit: 30 }],
     }),
+    HealthModule,
     DatabaseModule,
     AuthModule,
     ProfileModule,

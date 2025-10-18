@@ -19,6 +19,22 @@ proxy_cache_bypass $http_upgrade;
 
 
 
+# health
+server {
+    listen 8008;
+    listen [::]:8008;
+
+    server_name _;
+
+    location /health {
+        access_log off;
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
+}
+
+
+
 # api: redirect to HTTPS
 server {
     listen ${NGINX_PORT};

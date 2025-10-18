@@ -12,7 +12,7 @@ import { ETemplates } from 'libs/constants';
 import { getT } from '@ap/shared/dist/locales';
 
 @Injectable()
-export class AppService {
+export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async registration(email: string, code: string): Promise<void> {

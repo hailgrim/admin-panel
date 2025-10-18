@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cacheable } from 'cacheable';
-import Redis from 'ioredis';
+import { RedisClientType } from '@keyv/redis';
 
 import { REDIS } from 'libs/constants';
 
@@ -14,7 +14,7 @@ import { REDIS } from 'libs/constants';
 export class CacheService {
   constructor(
     @Inject(REDIS)
-    private redis: Redis,
+    private redis: RedisClientType,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cacheable,
   ) {}

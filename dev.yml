@@ -10,18 +10,21 @@ volumes:
 
 services:
   grafana:
+    restart: no
     env_file:
       - .env
     volumes:
       - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning
       - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards
   prometheus:
+    restart: no
     env_file:
       - .env
     volumes:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   nginx:
+    restart: no
     env_file:
       - .env
     volumes:
@@ -30,6 +33,7 @@ services:
       - ./infrastructure/nginx/templates:/etc/nginx/templates
 
   rabbitmq:
+    restart: no
     ports:
       - 15672:15672
     env_file:
@@ -38,34 +42,54 @@ services:
       - ./infrastructure/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   postgres:
+    restart: no
     env_file:
       - .env
     volumes:
       - ./infrastructure/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+  postgres-exporter:
+    restart: no
   adminer:
     image: adminer:standalone
     container_name: ${PROJECT_TAG}-adminer
-    restart: always
+    restart: no
     networks:
       - main
     ports:
       - 8080:8080
     env_file:
       - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '0.200'
+          memory: 256M
+        reservations:
+          cpus: '0.050'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   redis:
     build:
       target: development
+    restart: no
     ports:
       - 8001:8001
     env_file:
       - .env
     volumes:
       - ./infrastructure/redis/redis-stack.conf:/redis-stack.conf
+  redis-exporter:
+    restart: no
 
   api:
     build:
       target: development
+    restart: no
     env_file:
       - .env
     volumes:
@@ -75,6 +99,7 @@ services:
   mailer:
     build:
       target: development
+    restart: no
     env_file:
       - .env
     volumes:
@@ -84,18 +109,36 @@ services:
   panel-react:
     build:
       target: development
+    restart: no
     env_file:
       - .env
     volumes:
       - ./apps/frontend/panel-react:/usr/src/app/apps/frontend/panel-react
       - ./shared:/usr/src/app/shared
       - panel-react-node-modules:/usr/src/app/apps/frontend/panel-react/node_modules
+    deploy:
+      resources:
+        limits:
+          cpus: '4.000'
+          memory: 4096M
+        reservations:
+          cpus: '1.000'
+          memory: 1024M
   panel-vue:
     build:
       target: development
+    restart: no
     env_file:
       - .env
     volumes:
       - ./apps/frontend/panel-vue:/usr/src/app/apps/frontend/panel-vue
       - ./shared:/usr/src/app/shared
       - panel-vue-node-modules:/usr/src/app/apps/frontend/panel-vue/node_modules
+    deploy:
+      resources:
+        limits:
+          cpus: '4.000'
+          memory: 4096M
+        reservations:
+          cpus: '1.000'
+          memory: 1024M

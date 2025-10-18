@@ -30,7 +30,6 @@ services:
     build:
       context: ./infrastructure/grafana
     container_name: ${PROJECT_TAG}-grafana
-    restart: always
     networks:
       - main
     ports:
@@ -39,23 +38,63 @@ services:
       - grafana-storage:/var/lib/grafana
     secrets:
       - grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '0.500'
+          memory: 512M
+        reservations:
+          cpus: '0.125'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   prometheus:
     build:
       context: ./infrastructure/prometheus
     container_name: ${PROJECT_TAG}-prometheus
-    restart: always
     networks:
       - main
     expose:
       - 9090
     volumes:
       - prometheus-data:/prometheus
+    depends_on:
+      redis-exporter:
+        condition: service_started
+      postgres-exporter:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.250'
+          memory: 256M
+        reservations:
+          cpus: '0.125'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   nginx:
     build:
       context: ./infrastructure/nginx
     container_name: ${PROJECT_TAG}-nginx
-    restart: always
     networks:
       - main
     expose:
@@ -63,12 +102,34 @@ services:
     ports:
       - ${NGINX_PORT}:${NGINX_PORT}
       - ${NGINX_SSL_PORT}:${NGINX_SSL_PORT}
+    depends_on:
+      api:
+        condition: service_started
+      mailer:
+        condition: service_started
+    deploy:
+      resources:
+        limits:
+          cpus: '0.250'
+          memory: 256M
+        reservations:
+          cpus: '0.125'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     build:
       context: ./infrastructure/rabbitmq
     container_name: ${PROJECT_TAG}_rabbitmq
-    restart: always
     networks:
       - main
     expose:
@@ -76,26 +137,58 @@ services:
       - 15692
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '0.500'
+          memory: 512M
+        reservations:
+          cpus: '0.125'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   postgres:
     build:
       context: ./infrastructure/postgres
     container_name: ${PROJECT_TAG}-postgres
-    restart: always
     networks:
       - main
     expose:
       - ${POSTGRES_PORT}
     volumes:
       - postgres-data:/var/lib/postgresql
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1024M
+        reservations:
+          cpus: '0.250'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter
     container_name: ${PROJECT_TAG}-postgres-exporter
-    restart: always
     networks:
       - main
-    depends_on:
-      - postgres
     expose:
       - 9187
     environment:
@@ -103,26 +196,56 @@ services:
       - DATA_SOURCE_URI=${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable
       - DATA_SOURCE_USER=${POSTGRES_USER}
       - DATA_SOURCE_PASS=${POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.250'
+          memory: 256M
+        reservations:
+          cpus: '0.125'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   redis:
     build:
       context: ./infrastructure/redis
     container_name: ${PROJECT_TAG}-redis
-    restart: always
     networks:
       - main
     expose:
       - ${REDIS_PORT}
     volumes:
       - redis-data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1024M
+        reservations:
+          cpus: '0.250'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis-exporter:
     image: oliver006/redis_exporter
     container_name: ${PROJECT_TAG}-redis-exporter
-    restart: always
     networks:
       - main
-    depends_on:
-      - redis
     expose:
       - 9121
     environment:
@@ -130,17 +253,28 @@ services:
       - REDIS_ADDR=redis://${REDIS_HOST}:${REDIS_PORT}
       - REDIS_USER
       - REDIS_PASSWORD
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.250'
+          memory: 256M
+        reservations:
+          cpus: '0.125'
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   api:
     build:
       context: .
       dockerfile: ./apps/backend/api/Dockerfile
     container_name: ${PROJECT_TAG}-api
-    restart: always
-    depends_on:
-      - rabbitmq
-      - postgres
-      - redis
     networks:
       - main
     expose:
@@ -148,26 +282,63 @@ services:
     secrets:
       - access-token
       - refresh-token
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1024M
+        reservations:
+          cpus: '0.250'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://${API_HOST}:${API_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   mailer:
     build:
       context: .
       dockerfile: ./apps/backend/mailer/Dockerfile
     container_name: ${PROJECT_TAG}-mailer
-    restart: always
-    depends_on:
-      - rabbitmq
     networks:
       - main
     expose:
       - ${MAILER_PORT}
     secrets:
       - smtp
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.500'
+          memory: 512M
+        reservations:
+          cpus: '0.125'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
   panel-react:
     build:
       context: .
       dockerfile: ./apps/frontend/panel-react/Dockerfile
     container_name: ${PROJECT_TAG}-panel-react
-    restart: always
     networks:
       - main
     expose:
@@ -175,12 +346,16 @@ services:
     environment:
       - HOSTNAME=${PANEL_REACT_HOST}
       - PORT=${PANEL_REACT_PORT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
   panel-vue:
     build:
       context: .
       dockerfile: ./apps/frontend/panel-vue/Dockerfile
     container_name: ${PROJECT_TAG}-panel-vue
-    restart: always
     networks:
       - main
     expose:
@@ -188,3 +363,8 @@ services:
     environment:
       - HOSTNAME=${PANEL_VUE_HOST}
       - PORT=${PANEL_VUE_PORT}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"

@@ -20,7 +20,7 @@ import { cfg } from 'config/configuration';
         password: cfg.postgres.password,
         database: cfg.postgres.db,
         synchronize: cfg.postgres.synchronize,
-        logging: cfg.postgres.logging,
+        logging: cfg.postgres.logging || ['error'],
         entities: [
           UserEntity,
           RoleEntity,

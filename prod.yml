@@ -1,5 +1,6 @@
 services:
   grafana:
+    restart: unless-stopped
     environment:
       - TZ
       - GF_SECURITY_ADMIN_USER
@@ -7,10 +8,12 @@ services:
       - GF_USERS_ALLOW_SIGN_UP
       - GF_INSTALL_PLUGINS
   prometheus:
+    restart: unless-stopped
     environment:
       - TZ
 
   nginx:
+    restart: unless-stopped
     environment:
       - TZ
       - NGINX_HOST
@@ -27,6 +30,7 @@ services:
       - PANEL_VUE_URL
 
   rabbitmq:
+    restart: unless-stopped
     environment:
       - TZ
       - RABBITMQ_HOST
@@ -36,6 +40,7 @@ services:
       - RABBITMQ_PROMETHEUS_RETENTION_POLICY
 
   postgres:
+    restart: unless-stopped
     environment:
       - TZ
       - POSTGRES_HOST
@@ -43,20 +48,26 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+  postgres-exporter:
+    restart: unless-stopped
 
   redis:
     build:
       target: production
+    restart: unless-stopped
     environment:
       - TZ
       - REDIS_HOST
       - REDIS_PORT
       - REDIS_DB
       - REDIS_ARGS
+  redis-exporter:
+    restart: unless-stopped
 
   api:
     build:
       target: production
+    restart: unless-stopped
     environment:
       - TZ
       - API_HOST
@@ -87,6 +98,7 @@ services:
   mailer:
     build:
       target: production
+    restart: unless-stopped
     environment:
       - TZ
       - MAILER_HOST
@@ -113,6 +125,15 @@ services:
         - API_PORT
         - API_URL
         - GOOGLE_CLIENT_ID
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1024M
+        reservations:
+          cpus: '0.250'
+          memory: 256M
   panel-vue:
     build:
       target: production
@@ -123,3 +144,12 @@ services:
         - API_PORT
         - API_URL
         - GOOGLE_CLIENT_ID
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1024M
+        reservations:
+          cpus: '0.250'
+          memory: 256M
