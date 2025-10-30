@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 networks:
   main:
     name: ${PROJECT_TAG}-main
@@ -49,11 +55,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 128M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
       interval: 10s
@@ -85,11 +87,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
 
   nginx:
     build:
@@ -115,11 +113,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
       interval: 10s
@@ -145,11 +139,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 128M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 10s
@@ -174,11 +164,7 @@ services:
         reservations:
           cpus: '0.250'
           memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -207,11 +193,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
 
   redis:
     build:
@@ -231,11 +213,7 @@ services:
         reservations:
           cpus: '0.250'
           memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -264,11 +242,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 64M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
 
   api:
     build:
@@ -297,11 +271,7 @@ services:
         reservations:
           cpus: '0.250'
           memory: 256M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://${API_HOST}:${API_PORT}/health"]
       interval: 10s
@@ -329,11 +299,7 @@ services:
         reservations:
           cpus: '0.125'
           memory: 128M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
   panel-react:
     build:
       context: .
@@ -346,11 +312,7 @@ services:
     environment:
       - HOSTNAME=${PANEL_REACT_HOST}
       - PORT=${PANEL_REACT_PORT}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
   panel-vue:
     build:
       context: .
@@ -363,8 +325,4 @@ services:
     environment:
       - HOSTNAME=${PANEL_VUE_HOST}
       - PORT=${PANEL_VUE_PORT}
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "5"
+    logging: *default-logging
