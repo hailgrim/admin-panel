@@ -17,6 +17,7 @@ import {
   Repository,
   UpdateResult,
 } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 import { UserEntity } from './user.entity';
 import { CacheService } from 'src/cache/cache.service';
@@ -211,7 +212,7 @@ export class UsersService {
   }
 
   private async update(
-    fields: Partial<IUser>,
+    fields: QueryDeepPartialEntity<UserEntity>,
     options: FindOptionsWhere<UserEntity>,
   ): Promise<void> {
     let result: UpdateResult;
@@ -296,48 +297,14 @@ export class UsersService {
     id: string,
     changeEmailCode: string,
   ): Promise<void> {
-    let user: UserEntity | null;
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      user = await queryRunner.manager.findOne(UserEntity, {
-        where: { id, changeEmailCode },
-      });
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      await queryRunner.release();
-      Logger.error(error);
-      throw new InternalServerErrorException();
-    }
-
-    if (!user) {
-      await queryRunner.commitTransaction();
-      await queryRunner.release();
-      throw new NotFoundException();
-    }
-
-    try {
-      await queryRunner.manager.update(
-        UserEntity,
-        { id },
-        {
-          email: user.temporaryEmail,
-          changeEmailCode: null,
-          temporaryEmail: null,
-        },
-      );
-
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      Logger.error(error);
-      throw new InternalServerErrorException();
-    } finally {
-      await queryRunner.release();
-    }
+    await this.update(
+      {
+        email: () => `"${'temporaryEmail' satisfies keyof IUser}"`,
+        changeEmailCode: null,
+        temporaryEmail: null,
+      },
+      { id, changeEmailCode },
+    );
   }
 
   async updateRoles(id: string, usersRoles: IUsersRoles[]): Promise<void> {
@@ -360,7 +327,7 @@ export class UsersService {
     }
 
     if (!user) {
-      await queryRunner.commitTransaction();
+      await queryRunner.rollbackTransaction();
       await queryRunner.release();
       throw new NotFoundException();
     }

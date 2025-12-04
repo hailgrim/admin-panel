@@ -208,7 +208,7 @@ export class RolesService {
     }
 
     if (!role) {
-      await queryRunner.commitTransaction();
+      await queryRunner.rollbackTransaction();
       await queryRunner.release();
       throw new NotFoundException();
     }
