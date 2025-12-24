@@ -9,7 +9,7 @@ import ApiIcon from "@mui/icons-material/Api";
 
 import useTranslate from "@/shared/hooks/useTranslate";
 import useRights from "@/shared/hooks/useRights";
-import SideBarMenuItem from "./SideBarMenuItem";
+import SidebarMenuItem from "./SidebarMenuItem";
 import { ROUTES } from "@ap/shared/dist/libs";
 import { IMenuItem } from "@ap/shared/dist/types";
 
@@ -77,7 +77,7 @@ const SideBarMenu: FC = () => {
   return (
     <List disablePadding component="nav">
       {menu.map((item, index) => (
-        <SideBarMenuItem
+        <SidebarMenuItem
           key={`sbmi:${index}:${item.title}:${item.href}`}
           {...item}
         />

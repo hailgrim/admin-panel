@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 
-import FormButton from "@/shared/ui/Form/FormButton";
+import FormButton from "@/shared/ui/form/FormButton";
 import useRights from "@/shared/hooks/useRights";
 import { useAppDispatch } from "@/app/store/hooks";
 import { addAlert } from "@/app/store/main/main";

@@ -64,7 +64,7 @@ const opened = computed(() => menu.find(value => checkActiveLink(route.path, { h
     nav
     :opened="[opened ? `${opened.title}: ${opened.href}` : '']"
   >
-    <SideBarMenuItem
+    <SidebarMenuItem
       v-for="item of menu"
       :key="`sbmi:${item.title}:${item.href}`"
       v-bind="item"

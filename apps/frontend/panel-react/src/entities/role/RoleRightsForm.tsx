@@ -1,8 +1,8 @@
 import { FC, FormEvent, useState } from "react";
 import SaveIcon from "@mui/icons-material/Save";
 
-import FormBase from "@/shared/ui/Form/FormBase";
-import FormButton from "@/shared/ui/Form/FormButton";
+import FormBase from "@/shared/ui/form/FormBase";
+import FormButton from "@/shared/ui/form/FormButton";
 import useTranslate from "@/shared/hooks/useTranslate";
 import { IResource, IRights, IRole } from "@ap/shared/dist/types";
 import ResourceRights from "@/entities/resource/ResourceRights";

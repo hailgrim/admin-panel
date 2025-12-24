@@ -25,6 +25,6 @@ const { width } = useDisplay()
       />
     </v-list>
     <v-divider />
-    <SideBarMenu />
+    <SidebarMenu />
   </v-navigation-drawer>
 </template>

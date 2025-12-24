@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 
 import useTranslate from "@/shared/hooks/useTranslate";
-import FormCheckbox from "@/shared/ui/Form/FormCheckbox";
+import FormCheckbox from "@/shared/ui/form/FormCheckbox";
 import { IResource, IRights } from "@ap/shared/dist/types";
 
 const ResourceRights: React.FC<{

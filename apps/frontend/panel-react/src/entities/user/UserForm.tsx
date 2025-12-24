@@ -3,10 +3,10 @@ import AddIcon from "@mui/icons-material/Add";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import FormBase from "@/shared/ui/Form/FormBase";
-import FormField from "@/shared/ui/Form/FormField";
-import FormButton from "@/shared/ui/Form/FormButton";
-import FormCheckbox from "@/shared/ui/Form/FormCheckbox";
+import FormBase from "@/shared/ui/form/FormBase";
+import FormField from "@/shared/ui/form/FormField";
+import FormButton from "@/shared/ui/form/FormButton";
+import FormCheckbox from "@/shared/ui/form/FormCheckbox";
 import useTranslate from "@/shared/hooks/useTranslate";
 import { IUser, TUserCreate, TUserUpdate } from "@ap/shared/dist/types";
 import {
@@ -15,7 +15,7 @@ import {
   PASSWORD_REGEX,
   testString,
 } from "@ap/shared/dist/libs";
-import FormPassword from "@/shared/ui/Form/FormPassword";
+import FormPassword from "@/shared/ui/form/FormPassword";
 import { IEntityForm } from "@/shared/lib/types";
 
 const UserForm: FC<IEntityForm<IUser, TUserCreate, TUserUpdate>> = ({
